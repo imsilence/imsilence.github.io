@@ -1,0 +1,813 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+    
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.4"/>
+
+
+    <meta name="description" content="少年经不得顺境,中年经不得闲境,晚年经不得逆境" />
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.4" />
+
+
+<meta name="description" content="介绍elasticsearch是一个高效的、可扩展的全文搜索引擎
+基本概念
+Near Realtime(NRT): es是一个接近实时查询平台，意味从存储一条数据到可以索引到数据时差很小，通常在1s内
+Cluster: es是一个分布式、可扩展的平台, 可由一个或多个服务器通过定义的cluster.name（默认为elasticsearch）标识共建同一个集群
+Node: 通常一台服务器上部署一台">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elasticsearch 第一篇(入门篇)">
+<meta property="og:url" content="http://imsilence.github.io/2015/09/14/elasticsearch/elasticsearch_01/index.html">
+<meta property="og:site_name" content="Silence's Blogs">
+<meta property="og:description" content="介绍elasticsearch是一个高效的、可扩展的全文搜索引擎
+基本概念
+Near Realtime(NRT): es是一个接近实时查询平台，意味从存储一条数据到可以索引到数据时差很小，通常在1s内
+Cluster: es是一个分布式、可扩展的平台, 可由一个或多个服务器通过定义的cluster.name（默认为elasticsearch）标识共建同一个集群
+Node: 通常一台服务器上部署一台">
+<meta property="og:updated_time" content="2016-05-28T05:41:06.710Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="elasticsearch 第一篇(入门篇)">
+<meta name="twitter:description" content="介绍elasticsearch是一个高效的、可扩展的全文搜索引擎
+基本概念
+Near Realtime(NRT): es是一个接近实时查询平台，意味从存储一条数据到可以索引到数据时差很小，通常在1s内
+Cluster: es是一个分布式、可扩展的平台, 可由一个或多个服务器通过定义的cluster.name（默认为elasticsearch）标识共建同一个集群
+Node: 通常一台服务器上部署一台">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+    <title> elasticsearch 第一篇(入门篇) // Silence's Blogs </title>
+</head>
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?d76d6abdbe271d3cca4ddb8f5649243c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+<div class="container one-column page-post-detail">
+    <div class="headband"></div>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-logo"></i>
+      </span>
+      <span class="site-title">Silence's Blogs</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+<form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'YGzc19xtW4Xs6NWUE3qA','2.0.0');
+</script>
+
+<div class="site-search-toggle"></div>
+    </div>
+  
+</nav>
+
+
+        </div>
+    </header>
+
+    <main id="main" class="main">
+        <div class="main-inner">
+            <div id="content" class="content">
+                
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              elasticsearch 第一篇(入门篇)
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-14T16:55:21+08:00" content="2015-09-14">
+            2015-09-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing"><a href="/categories/存储/" itemprop="url" rel="index"><span itemprop="name">存储</span></a></span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/14/elasticsearch/elasticsearch_01/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/14/elasticsearch/elasticsearch_01/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>elasticsearch是一个高效的、可扩展的全文搜索引擎</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><ul>
+<li>Near Realtime(NRT): es是一个接近实时查询平台，意味从存储一条数据到可以索引到数据时差很小，通常在1s内</li>
+<li>Cluster: es是一个分布式、可扩展的平台, 可由一个或多个服务器通过定义的cluster.name（默认为elasticsearch）标识共建同一个集群</li>
+<li>Node: 通常一台服务器上部署一台es node，作为集群的一部分，用于数据的存储和提供搜索功能，在一个集群中节点通过node.name区分，默认在node启动时随机生成一个的字符串做为节点名称，可配置</li>
+<li>Index: 类似于关系型数据库中的database，用于组织一类功能相似的数据，在一个集群中可以定义任意个索引，索引的名称只能由小写字母组成，在数据索引，更新，搜索，删除时作为数据标识的一部分</li>
+<li>Type: 类似于关系型数据库中的table，在Index中可以定义多个Type，原则上一个Type是由相同属性组成的数据集合</li>
+<li>Document: 类似于关系型数据库中的record，是数据的最基本存储单元，使用json形式表示，Document在物理上存储在Index下，但是在逻辑上会分配到具体的Type下</li>
+<li>Shards &amp; Replica:<br>一个Index可能存储大量的数据(超过单个节点的硬件限制)，不管是数据存储还是数据索引，为解决数据单节点存储并提高并发，es将每一个Index物理分为多个片，从而水平扩展存储容量，提高并发（可以同时对个shard进行索引和搜索）<br>为防止某个存储单元出现故障后数据不能索引的情况，es提供将shard进行复制功能，将主shard出现故障后，复制shard替代主shard进行数据索引操作，已此方式实现其高可用性，因为在搜索时可以使用复制shard，从而提高的数据搜索的并发性<br>在Index创建时可以进行分片数量和复制数量的设置，默认创建每个Index设置5个shard和1个Replica，表示该Index由5个逻辑存储单元进行存储，每个逻辑存储单元具有一个复制节点进行备灾，注意，shard只能在创建Index时进行设置，shard数量与document分配到哪个shard上存储有关(通常使用hash(document _id) % shard num计算 document存储在哪个shard上)<br>在es将主shard和replic分片在不同的Node上</li>
+</ul>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ul>
+<li>elasticsearch使用java语言实现，在使用时必须安装java虚拟机（目前es1.6和1.7版本均可选择1.8版本java）</li>
+<li><a href="https://www.elastic.co/downloads" title="elasticsearch" target="_blank" rel="external">下载地址</a></li>
+<li>解压到安装目录 <code>C:\Program Files\elasticsearch</code></li>
+<li>运行 <code>cd &quot;C:\Program Files\elasticsearch\bin&quot; &amp;&amp; elasticsearch.bat</code></li>
+<li>安装到服务 <code>service install elasticsearch</code></li>
+<li>启动服务 <code>net start elasticsearch</code></li>
+<li>停止服务 <code>net stop elasticsearch</code></li>
+<li>测试<br>访问地址: <a href="http://localhost:9200" target="_blank" rel="external">http://localhost:9200</a><br>访问结果:<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"><span class="symbol">  status:</span> <span class="number">200</span>,</span><br><span class="line"><span class="symbol">  name:</span> <span class="string">"Smart Alec"</span>,</span><br><span class="line"><span class="symbol">  cluster_name:</span> <span class="string">"elasticsearch"</span>,</span><br><span class="line"><span class="symbol">  version:</span> &#123;</span><br><span class="line"><span class="symbol">    number:</span> <span class="string">"1.6.0"</span>,</span><br><span class="line"><span class="symbol">    build_hash:</span> <span class="string">"cdd3ac4dde4f69524ec0a14de3828cb95bbb86d0"</span>,</span><br><span class="line"><span class="symbol">    build_timestamp:</span> <span class="string">"2015-06-09T13:36:34Z"</span>,</span><br><span class="line"><span class="symbol">    build_snapshot:</span> false,</span><br><span class="line"><span class="symbol">    lucene_version:</span> <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line"><span class="symbol">  tagline:</span> <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><p>es对外提供标准RESTAPI接口，使用他进行集群的所有操作：</p>
+<ul>
+<li>集群、节点、索引的状态和统计信息查看</li>
+<li>管理集群、节点、索引和类型</li>
+<li>执行CURD操作（创建，更新，读取，删除）和索引</li>
+<li>执行高级搜索功能，比如排序，分页，筛选，聚合，js脚本执行等</li>
+</ul>
+<p>格式：<code>curl -X&lt;REST verb&gt; &lt;Node&gt;:&lt;Port&gt;/&lt;Index&gt;/&lt;Type&gt;/&lt;ID&gt;</code></p>
+<h2 id="使用marvel插件"><a href="#使用marvel插件" class="headerlink" title="使用marvel插件"></a>使用marvel插件</h2><ul>
+<li>运行 <code>cd &quot;C:\Program Files\elasticsearch\bin&quot; &amp;&amp; plugin -i elasticsearch/marvel/latest</code></li>
+<li><a href="http://localhost:9200/_plugin/marvel/" target="_blank" rel="external">访问地址</a></li>
+<li>marvel提供sense工具调用es的RESTAPI借口, <a href="http://localhost:9200/_plugin/marvel/sense/index.html" target="_blank" rel="external">访问地址</a>, 以下操作使用sense或使用linux curl命令行练习</li>
+</ul>
+<h2 id="状态查询"><a href="#状态查询" class="headerlink" title="状态查询"></a>状态查询</h2><ul>
+<li>集群状态查询<br>输入: <code>GET _cat/health?v</code><br>输出:<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">epoch      timestamp cluster       status <span class="keyword">node</span>.<span class="title">total</span> <span class="keyword">node</span>.<span class="title">data</span> shards pri relo init unassign pending_tasks</span><br><span class="line"><span class="number">1442227489</span> <span class="number">18</span>:<span class="number">44</span>:<span class="number">49</span>  elasticsearch yellow          <span class="number">1</span>         <span class="number">1</span>     <span class="number">50</span>  <span class="number">50</span>    <span class="number">0</span>    <span class="number">0</span>       <span class="number">50</span>             <span class="number">0</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>说明:<br>status:表示集群的健康状态，值可能为green,yellow,red, green表示主shard和replica(至少一个)正常，yellow表示主shard正常但replica都不正常，red表示有的主shard和replica都有问题<br>node.total:表示集群中节点的数量</p>
+<ul>
+<li>节点状态查询<br>输入: <code>GET /_cat/nodes?v</code><br>输出:<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">host      ip             heap.percent ram.percent load <span class="keyword">node</span>.<span class="title">role</span> <span class="keyword">master</span> <span class="title">name</span></span><br><span class="line">silence   <span class="number">192.168</span>.<span class="number">1.111</span>            <span class="number">30</span>          <span class="number">51</span>      d         *      Thunderbird</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="查询所有索引"><a href="#查询所有索引" class="headerlink" title="查询所有索引"></a>查询所有索引</h2><p>输入: <code>GET /_cat/indices?v</code><br>输出:<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">health</span> <span class="selector-tag">status</span> <span class="selector-tag">index</span>              <span class="selector-tag">pri</span> <span class="selector-tag">rep</span> <span class="selector-tag">docs</span><span class="selector-class">.count</span> <span class="selector-tag">docs</span><span class="selector-class">.deleted</span> <span class="selector-tag">store</span><span class="selector-class">.size</span> <span class="selector-tag">pri</span><span class="selector-class">.store</span><span class="selector-class">.size</span></span><br><span class="line"><span class="selector-tag">yellow</span> <span class="selector-tag">open</span>   <span class="selector-class">.marvel-2015</span><span class="selector-class">.09</span><span class="selector-class">.02</span>   1   1      93564            0     78<span class="selector-class">.4mb</span>         78<span class="selector-class">.4mb</span></span><br><span class="line"><span class="selector-tag">yellow</span> <span class="selector-tag">open</span>   <span class="selector-class">.marvel-2015</span><span class="selector-class">.09</span><span class="selector-class">.01</span>   1   1      39581            0     45<span class="selector-class">.9mb</span>         45<span class="selector-class">.9mb</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h2><p>输入: <code>PUT /test1?pretty</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"acknowledged"</span> : <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>查询所有索引:<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">health status index              pri rep docs<span class="selector-class">.count</span> docs<span class="selector-class">.deleted</span> store<span class="selector-class">.size</span> pri<span class="selector-class">.store</span><span class="selector-class">.size</span></span><br><span class="line">yellow open   test1                <span class="number">5</span>   <span class="number">1</span>          <span class="number">0</span>            <span class="number">0</span>       <span class="number">575</span>b           <span class="number">575</span>b</span><br></pre></td></tr></table></figure></p>
+<p>说明:<br>health:由于只运行一个节点，replica不能与主shard在同一node中，因此replica不正常，该index的状态为yellow<br>index:为索引名称<br>pri:表示主shard个数<br>rep:表示每个shard的复制个数<br>docs.count:表示index中document的个数</p>
+<h2 id="索引、读取、删除文档"><a href="#索引、读取、删除文档" class="headerlink" title="索引、读取、删除文档"></a>索引、读取、删除文档</h2><p>索引文档</p>
+<ul>
+<li>方法1:<br>输入: <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT <span class="meta-keyword">/test1/</span>user/<span class="number">1</span>?<span class="class">pretty</span><br><span class="line"></span>&#123;<span class="string">"name"</span>: <span class="string">"silence1"</span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>输出:<br><figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"_index"</span> : <span class="string">"test1</span><br><span class="line">  "</span>_type<span class="string">" : "</span>use<span class="string">r",</span><br><span class="line">  "</span>_id<span class="string">" : "</span><span class="number">1</span><span class="string">",</span><br><span class="line">  "</span>_version<span class="string">" : 1,</span><br><span class="line">  "c</span>reated<span class="string">" : true</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>方法2:<br>输入: <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST <span class="meta-keyword">/test1/</span>user/<span class="number">2</span>?<span class="class">pretty</span><br><span class="line"></span>&#123;<span class="string">"name"</span>: <span class="string">"silence2"</span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"2"</span>,</span><br><span class="line">  <span class="attr">"_version"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"created"</span> : <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>方法3:<br>输入: <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST <span class="meta-keyword">/test1/</span>user?<span class="class">pretty</span><br><span class="line"></span>&#123;<span class="string">"name"</span>: <span class="string">"silence3"</span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"AU_MdQoXRYiHSIs7UGBQ"</span>,</span><br><span class="line">  <span class="attr">"_version"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"created"</span> : <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明: 在索引文档时若需要指定文档ID值则需要使用PUT或者POST提交数据并显示指定ID值，若需要由es自动生成ID，则需要使用POST提交数据</p>
+<p>读取文档：<br>输入: <code>GET /test1/user/1?pretty</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"1"</span>,</span><br><span class="line">  <span class="attr">"_version"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"found"</span> : <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"_source"</span>:&#123;<span class="attr">"name"</span>: <span class="string">"silence1"</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明:<br>_index,_type:表示文档存储的Index和Type信息<br>_id:表示文档的编号<br>_version:表示文档的版本号，主要用于并发处理时使用乐观锁防止脏数据<br>found:表示请求的文档是否存在<br>_souce:格式为json，为文档的内容</p>
+<p>注意:在之前我们并未创建user的Type，在进行文档索引时自动创建了user，在es中可以不显示的创建Index和Type而使用默认参数或者根据提交数据自定义，但不建议这么使用，在不清楚可能导致什么情况时显示创建Index和Type并设置参数</p>
+<p>删除文档:<br>输入: <code>DELETE /test1/user/1?pretty</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"found"</span> : <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"1"</span>,</span><br><span class="line">  <span class="attr">"_version"</span> : <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>再次读取文档输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"1"</span>,</span><br><span class="line">  <span class="attr">"found"</span> : <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><p>输入: <code>DELETE /test1?pretty</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"acknowledged"</span> : <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="修改文档"><a href="#修改文档" class="headerlink" title="修改文档"></a>修改文档</h2><p>初始化文档输入:<br><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT <span class="meta-keyword">/test1/</span>user/<span class="number">1</span>?<span class="class">pretty</span><br><span class="line"></span>&#123;<span class="string">"name"</span> : <span class="string">"silence2"</span>, <span class="string">"age"</span>:<span class="number">28</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>修改文档输入:<br><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT <span class="meta-keyword">/test1/</span>user/<span class="number">1</span>?<span class="class">pretty</span><br><span class="line"></span>&#123;<span class="string">"name"</span> : <span class="string">"silence1"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>读取文档输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"1"</span>,</span><br><span class="line">  <span class="attr">"_version"</span> : <span class="number">2</span>,</span><br><span class="line">  <span class="attr">"found"</span> : <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"_source"</span>:&#123;<span class="attr">"name"</span> : <span class="string">"silence1"</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="更新文档"><a href="#更新文档" class="headerlink" title="更新文档"></a>更新文档</h2><p>更新数据输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/user/<span class="number">1</span>/_<span class="keyword">update</span>?pretty</span><br><span class="line">&#123;<span class="string">"doc"</span> : &#123;<span class="string">"name"</span> : <span class="string">"silence3"</span>, <span class="string">"age"</span>:<span class="number">28</span>&#125;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>读取数据输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"1"</span>,</span><br><span class="line">  <span class="attr">"_version"</span> : <span class="number">3</span>,</span><br><span class="line">  <span class="attr">"found"</span> : <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"_source"</span>:&#123;<span class="attr">"name"</span>:<span class="string">"silence3"</span>,<span class="attr">"age"</span>:<span class="number">28</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>更新文档输入:<br><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST <span class="meta-keyword">/test1/</span>user/<span class="number">1</span>/_update?<span class="class">pretty</span><br><span class="line"></span>&#123;<span class="string">"script"</span> : <span class="string">"ctx._source.age += 1"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>读取文档输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_index"</span> : <span class="string">"test1"</span>,</span><br><span class="line">  <span class="attr">"_type"</span> : <span class="string">"user"</span>,</span><br><span class="line">  <span class="attr">"_id"</span> : <span class="string">"1"</span>,</span><br><span class="line">  <span class="attr">"_version"</span> : <span class="number">4</span>,</span><br><span class="line">  <span class="attr">"found"</span> : <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"_source"</span>:&#123;<span class="attr">"name"</span>:<span class="string">"silence3"</span>,<span class="attr">"age"</span>:<span class="number">29</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明：需要POST使用script则必须在elasticsearch/config/elasticsearch.yml配置<code>script.groovy.sandbox.enabled: true</code><br>修改(PUT)和更新(POST+_update)的区别在于修改使用提交的文档覆盖es中的文档，更新使用提交的参数值覆盖es中文档对应的参数值</p>
+<h2 id="根据查询删除文档"><a href="#根据查询删除文档" class="headerlink" title="根据查询删除文档"></a>根据查询删除文档</h2><p>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DELETE /test1/user/_query?pretty</span><br><span class="line">&#123;<span class="string">"query"</span> : &#123;<span class="string">"match"</span> : &#123;<span class="string">"name"</span> : <span class="string">"silence3"</span>&#125;&#125;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_indices"</span> : &#123;</span><br><span class="line">    <span class="attr">"test1"</span> : &#123;</span><br><span class="line">      <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">        <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">        <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">        <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="获取文档数量"><a href="#获取文档数量" class="headerlink" title="获取文档数量"></a>获取文档数量</h2><p>输入: <code>GET /test1/user/_count?pretty</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="批量操作"><a href="#批量操作" class="headerlink" title="批量操作"></a>批量操作</h2><p>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/user/_bulk?pretty</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;<span class="string">"_id"</span> : <span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence1"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;<span class="string">"_id"</span> : <span class="number">2</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence2"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence3"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence4"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/user/_bulk?pretty</span><br><span class="line">&#123;<span class="string">"update"</span> : &#123;<span class="string">"_id"</span> : <span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"doc"</span> : &#123;<span class="string">"age"</span> : <span class="number">28</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"delete"</span> : &#123;<span class="string">"_id"</span> : <span class="number">2</span>&#125;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过文件导入数据: <code>curl -XPOST &quot;localhost:9200/test1/account/_bulk?pretty&quot; --data-binary @accounts.json</code></p>
+<h2 id="Query查询"><a href="#Query查询" class="headerlink" title="Query查询"></a>Query查询</h2><p>查询可以通过两种方式进行，一种为使用查询字符串进行提交参数查询，一种为使用RESTAPI提交requesbody提交参数查询</p>
+<p>获取所有文档输入: <code>GET /test1/user/_search?q=*&amp;pretty</code></p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/user/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span> : &#123;<span class="string">"match_all"</span> : &#123;&#125;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">2</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">3</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: [</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"user"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"name"</span>: <span class="string">"silence1"</span>,</span><br><span class="line">               <span class="attr">"age"</span>: <span class="number">28</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"user"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"AU_M2zgwLNdQvgqQS3MP"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"name"</span>: <span class="string">"silence3"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"user"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"AU_M2zgwLNdQvgqQS3MQ"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"name"</span>: <span class="string">"silence4"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明:<br>took: 执行查询的时间(单位为毫秒)<br>timed_out: 执行不能超时<br>_shards: 提示有多少shard参与查询以及查询成功和失败shard数量<br>hits: 查询结果<br>hits.total: 文档总数<br>_score, max_score: 为文档与查询条件匹配度和最大匹配度</p>
+<h2 id="Query-SDL"><a href="#Query-SDL" class="headerlink" title="Query SDL"></a>Query SDL</h2><p>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span> : &#123;<span class="string">"match_all"</span>:&#123;&#125;&#125;,</span><br><span class="line">  <span class="string">"size"</span>: <span class="number">2</span>,</span><br><span class="line">  <span class="string">"from"</span> : <span class="number">6</span>,</span><br><span class="line">  <span class="string">"sort"</span> : &#123;</span><br><span class="line">    <span class="string">"age"</span> : &#123;<span class="string">"order"</span> : <span class="string">"asc"</span>&#125; </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明:<br>query: 用于定义查询条件过滤<br>match_all: 表示查询所有文档<br>size: 表示查询返回文档数量，若未设置默认为10<br>from: 表示开始位置, es使用0作为开始索引，常与size组合进行分页查询，若未设置默认为0<br>sort: 用于设置排序属性和规则</p>
+<ul>
+<li>使用_source设置查询结果返回的文档属性<br>输入:<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"match_all"</span>: &#123;&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"_source"</span>:[<span class="string">"firstname"</span>, <span class="string">"lastname"</span>, <span class="string">"age"</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">5</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">1000</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: [</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"account"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"4"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"firstname"</span>: <span class="string">"Rodriquez"</span>,</span><br><span class="line">               <span class="attr">"age"</span>: <span class="number">31</span>,</span><br><span class="line">               <span class="attr">"lastname"</span>: <span class="string">"Flores"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"account"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"9"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"firstname"</span>: <span class="string">"Opal"</span>,</span><br><span class="line">               <span class="attr">"age"</span>: <span class="number">39</span>,</span><br><span class="line">               <span class="attr">"lastname"</span>: <span class="string">"Meadows"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>使用match设置查询匹配值<br>输入:<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"match"</span>: &#123;<span class="string">"address"</span> : <span class="string">"986 Wyckoff Avenue"</span>&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"size"</span> : <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">216</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">4.1231737</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: [</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"account"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"4"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">4.1231737</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"account_number"</span>: <span class="number">4</span>,</span><br><span class="line">               <span class="attr">"balance"</span>: <span class="number">27658</span>,</span><br><span class="line">               <span class="attr">"firstname"</span>: <span class="string">"Rodriquez"</span>,</span><br><span class="line">               <span class="attr">"lastname"</span>: <span class="string">"Flores"</span>,</span><br><span class="line">               <span class="attr">"age"</span>: <span class="number">31</span>,</span><br><span class="line">               <span class="attr">"gender"</span>: <span class="string">"F"</span>,</span><br><span class="line">               <span class="attr">"address"</span>: <span class="string">"986 Wyckoff Avenue"</span>,</span><br><span class="line">               <span class="attr">"employer"</span>: <span class="string">"Tourmania"</span>,</span><br><span class="line">               <span class="attr">"email"</span>: <span class="string">"rodriquezflores@tourmania.com"</span>,</span><br><span class="line">               <span class="attr">"city"</span>: <span class="string">"Eastvale"</span>,</span><br><span class="line">               <span class="attr">"state"</span>: <span class="string">"HI"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"account"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"34"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">0.59278774</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"account_number"</span>: <span class="number">34</span>,</span><br><span class="line">               <span class="attr">"balance"</span>: <span class="number">35379</span>,</span><br><span class="line">               <span class="attr">"firstname"</span>: <span class="string">"Ellison"</span>,</span><br><span class="line">               <span class="attr">"lastname"</span>: <span class="string">"Kim"</span>,</span><br><span class="line">               <span class="attr">"age"</span>: <span class="number">30</span>,</span><br><span class="line">               <span class="attr">"gender"</span>: <span class="string">"F"</span>,</span><br><span class="line">               <span class="attr">"address"</span>: <span class="string">"986 Revere Place"</span>,</span><br><span class="line">               <span class="attr">"employer"</span>: <span class="string">"Signity"</span>,</span><br><span class="line">               <span class="attr">"email"</span>: <span class="string">"ellisonkim@signity.com"</span>,</span><br><span class="line">               <span class="attr">"city"</span>: <span class="string">"Sehili"</span>,</span><br><span class="line">               <span class="attr">"state"</span>: <span class="string">"IL"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明：根据查询结果可见在查询结果中并非只查询address包含”986 Wyckoff Avenue”的文档，而是包含986,wychoff,Avenue三个词中任意一个，这就是es分词的强大之处<br>可见查询结果中_score(与查询条件匹配度)按从大到小的顺序排列<br>此时你可能想要值查询address包含”986 Wyckoff Avenue”的文档，怎么办呢？使用match_phrase<br>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"match_phrase"</span>: &#123;<span class="string">"address"</span> : <span class="string">"986 Wyckoff Avenue"</span>&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可能你已经注意到, 以上query中只有一个条件，若存在多个条件，我们必须使用bool query将多个条件进行组合<br>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"bool"</span> : &#123;</span><br><span class="line">      <span class="string">"must"</span>:[</span><br><span class="line">        &#123;<span class="string">"match_phrase"</span>: &#123;<span class="string">"address"</span> : <span class="string">"986 Wyckoff Avenue"</span>&#125;&#125;,</span><br><span class="line">        &#123;<span class="string">"match"</span> : &#123;<span class="string">"age"</span> : <span class="number">31</span>&#125;&#125;  </span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明: 查询所有条件都满足的结果</p>
+<p>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"bool"</span> : &#123;</span><br><span class="line">      <span class="string">"should"</span>:[</span><br><span class="line">        &#123;<span class="string">"match_phrase"</span>: &#123;<span class="string">"address"</span> : <span class="string">"986 Wyckoff Avenue"</span>&#125;&#125;,</span><br><span class="line">        &#123;<span class="string">"match_phrase"</span>: &#123;<span class="string">"address"</span> : <span class="string">"963 Neptune Avenue"</span>&#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明: 查询有一个条件满足的结果<br>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"bool"</span> : &#123;</span><br><span class="line">      <span class="string">"must_not"</span>:[</span><br><span class="line">        &#123;<span class="string">"match"</span>: &#123;<span class="string">"city"</span> : <span class="string">"Eastvale"</span>&#125;&#125;,</span><br><span class="line">        &#123;<span class="string">"match"</span>: &#123;<span class="string">"city"</span> : <span class="string">"Olney"</span>&#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明: 查询有条件都不满足的结果</p>
+<p>在Query SDL中可以将must, must_not和should组合使用<br>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"bool"</span> : &#123;</span><br><span class="line">      <span class="string">"must"</span>: [&#123;</span><br><span class="line">        <span class="string">"match"</span> : &#123;<span class="string">"age"</span>:<span class="number">20</span>&#125;</span><br><span class="line">      &#125;],</span><br><span class="line">      <span class="string">"must_not"</span>:[</span><br><span class="line">        &#123;<span class="string">"match"</span>: &#123;<span class="string">"city"</span> : <span class="string">"Steinhatchee"</span>&#125;&#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Filters-查询"><a href="#Filters-查询" class="headerlink" title="Filters 查询"></a>Filters 查询</h2><p>在使用Query 查询时可以看到在查询结果中都有_score值, _score值需要进行计算, 在某些情况下我们并不需要_socre值，在es中提供了Filters查询，它类似于Query查询，但是效率较高，原因:</p>
+<ol>
+<li>不需要对查询结果进行_score值的计算</li>
+<li>Filters可以被缓存在内存中，可被重复搜索从而提高查询效率</li>
+</ol>
+<ul>
+<li>range 过滤器， 用于设置条件在某个范围内<br>输入:<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"filtered"</span>:&#123;</span><br><span class="line">      <span class="string">"query"</span>: &#123;</span><br><span class="line">        <span class="string">"match_all"</span> : &#123;&#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"filter"</span>: &#123;</span><br><span class="line">        <span class="string">"range"</span> : &#123;</span><br><span class="line">          <span class="string">"age"</span> : &#123;</span><br><span class="line">            <span class="string">"gte"</span> : <span class="number">20</span>,</span><br><span class="line">            <span class="string">"lt"</span> : <span class="number">28</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>判断使用filter还是使用query的最简单方法就是是否关注_score值，若关注则使用query，若不关注则使用filter</p>
+<h2 id="聚合分析"><a href="#聚合分析" class="headerlink" title="聚合分析"></a>聚合分析</h2><p>es提供Aggregations支持分组和聚合查询，类似于关系型数据库中的GROUP BY和聚合函数，在ES调用聚合RESTAPI时返回结果包含文档查询结果和聚合结果，也可以返回多个聚合结果，从而简化API调用和减少网络流量使用<br>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="string">"aggs"</span> : &#123;</span><br><span class="line">    <span class="string">"group_by_gender"</span> : &#123;</span><br><span class="line">      <span class="string">"terms"</span> : &#123;<span class="string">"field"</span>:<span class="string">"gender"</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">1000</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: []</span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"aggregations"</span>: &#123;</span><br><span class="line">      <span class="attr">"group_by_gender"</span>: &#123;</span><br><span class="line">         <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">         <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">         <span class="attr">"buckets"</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"m"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">507</span></span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"f"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">493</span></span><br><span class="line">            &#125;</span><br><span class="line">         ]</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明:<br>size: 返回文档查询结果数量<br>aggs: 用于设置聚合分类<br>terms: 设置group by属性值</p>
+<p>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="string">"aggs"</span> : &#123;</span><br><span class="line">    <span class="string">"group_by_gender"</span> : &#123;</span><br><span class="line">      <span class="string">"terms"</span> : &#123;</span><br><span class="line">        <span class="string">"field"</span>:<span class="string">"state"</span>,</span><br><span class="line">        <span class="string">"order"</span> : &#123;<span class="string">"avg_age"</span>:<span class="string">"desc"</span>&#125;,</span><br><span class="line">        <span class="string">"size"</span> : <span class="number">3</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"aggs"</span> : &#123;</span><br><span class="line">        <span class="string">"avg_age"</span> : &#123;</span><br><span class="line">          <span class="string">"avg"</span> : &#123;<span class="string">"field"</span> : <span class="string">"age"</span>&#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"max_age"</span> : &#123;</span><br><span class="line">          <span class="string">"max"</span> : &#123;<span class="string">"field"</span>: <span class="string">"age"</span>&#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"min_age"</span> : &#123;</span><br><span class="line">          <span class="string">"min"</span>: &#123;<span class="string">"field"</span>:<span class="string">"age"</span>&#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">9</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">1000</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: []</span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"aggregations"</span>: &#123;</span><br><span class="line">      <span class="attr">"group_by_gender"</span>: &#123;</span><br><span class="line">         <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">-1</span>,</span><br><span class="line">         <span class="attr">"sum_other_doc_count"</span>: <span class="number">992</span>,</span><br><span class="line">         <span class="attr">"buckets"</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"de"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">1</span>,</span><br><span class="line">               <span class="attr">"max_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">37</span></span><br><span class="line">               &#125;,</span><br><span class="line">               <span class="attr">"avg_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">37</span></span><br><span class="line">               &#125;,</span><br><span class="line">               <span class="attr">"min_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">37</span></span><br><span class="line">               &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"il"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">3</span>,</span><br><span class="line">               <span class="attr">"max_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">39</span></span><br><span class="line">               &#125;,</span><br><span class="line">               <span class="attr">"avg_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">36.333333333333336</span></span><br><span class="line">               &#125;,</span><br><span class="line">               <span class="attr">"min_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">32</span></span><br><span class="line">               &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"in"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">4</span>,</span><br><span class="line">               <span class="attr">"max_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">39</span></span><br><span class="line">               &#125;,</span><br><span class="line">               <span class="attr">"avg_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">36</span></span><br><span class="line">               &#125;,</span><br><span class="line">               <span class="attr">"min_age"</span>: &#123;</span><br><span class="line">                  <span class="attr">"value"</span>: <span class="number">34</span></span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         ]</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明:根据state进行分类，并查询每种分类所有人员的最大，最小，平均年龄, 查询结果按平均年龄排序并返回前3个查询结果<br>若需要按照分类总数进行排序时可以使用_count做为sort的field值<br>在聚合查询时通过size设置返回的TOP数量，默认为10</p>
+<p>在聚合查询中可任意嵌套聚合语句进行查询<br>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/account/_search?pretty</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"size"</span> : <span class="number">0</span>,</span><br><span class="line">  <span class="string">"aggs"</span> : &#123;</span><br><span class="line">    <span class="string">"group_by_age"</span> : &#123;</span><br><span class="line">      <span class="string">"range"</span> : &#123;</span><br><span class="line">        <span class="string">"field"</span>: <span class="string">"age"</span>,</span><br><span class="line">        <span class="string">"ranges"</span> : [&#123;</span><br><span class="line">          <span class="string">"from"</span> : <span class="number">20</span>,</span><br><span class="line">          <span class="string">"to"</span> : <span class="number">30</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">          <span class="string">"from"</span>: <span class="number">30</span>,</span><br><span class="line">          <span class="string">"to"</span> : <span class="number">40</span></span><br><span class="line">        &#125;,&#123;</span><br><span class="line">          <span class="string">"from"</span>: <span class="number">40</span>,</span><br><span class="line">          <span class="string">"to"</span>: <span class="number">50</span></span><br><span class="line">        &#125;]</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"aggs"</span>:&#123;</span><br><span class="line">        <span class="string">"group_by_gender"</span> : &#123;</span><br><span class="line">          <span class="string">"terms"</span> : &#123;<span class="string">"field"</span>: <span class="string">"gender"</span>&#125;,</span><br><span class="line">          <span class="string">"aggs"</span> : &#123;</span><br><span class="line">            <span class="string">"group_by_balance"</span> :&#123;</span><br><span class="line">              <span class="string">"range"</span> : &#123;</span><br><span class="line">                <span class="string">"field"</span>:<span class="string">"balance"</span>,</span><br><span class="line">                <span class="string">"ranges"</span> : [&#123;</span><br><span class="line">                  <span class="string">"to"</span> : <span class="number">5000</span></span><br><span class="line">                &#125;, &#123;</span><br><span class="line">                  <span class="string">"from"</span> : <span class="number">5000</span></span><br><span class="line">                &#125;</span><br><span class="line">                ]</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">1000</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: []</span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"aggregations"</span>: &#123;</span><br><span class="line">      <span class="attr">"group_by_age"</span>: &#123;</span><br><span class="line">         <span class="attr">"buckets"</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"20.0-30.0"</span>,</span><br><span class="line">               <span class="attr">"from"</span>: <span class="number">20</span>,</span><br><span class="line">               <span class="attr">"from_as_string"</span>: <span class="string">"20.0"</span>,</span><br><span class="line">               <span class="attr">"to"</span>: <span class="number">30</span>,</span><br><span class="line">               <span class="attr">"to_as_string"</span>: <span class="string">"30.0"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">451</span>,</span><br><span class="line">               <span class="attr">"group_by_gender"</span>: &#123;</span><br><span class="line">                  <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">                  <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">                  <span class="attr">"buckets"</span>: [</span><br><span class="line">                     &#123;</span><br><span class="line">                        <span class="attr">"key"</span>: <span class="string">"m"</span>,</span><br><span class="line">                        <span class="attr">"doc_count"</span>: <span class="number">232</span>,</span><br><span class="line">                        <span class="attr">"group_by_balance"</span>: &#123;</span><br><span class="line">                           <span class="attr">"buckets"</span>: [</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"*-5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"to"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"to_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">9</span></span><br><span class="line">                              &#125;,</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"5000.0-*"</span>,</span><br><span class="line">                                 <span class="attr">"from"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"from_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">223</span></span><br><span class="line">                              &#125;</span><br><span class="line">                           ]</span><br><span class="line">                        &#125;</span><br><span class="line">                     &#125;,</span><br><span class="line">                     &#123;</span><br><span class="line">                        <span class="attr">"key"</span>: <span class="string">"f"</span>,</span><br><span class="line">                        <span class="attr">"doc_count"</span>: <span class="number">219</span>,</span><br><span class="line">                        <span class="attr">"group_by_balance"</span>: &#123;</span><br><span class="line">                           <span class="attr">"buckets"</span>: [</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"*-5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"to"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"to_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">20</span></span><br><span class="line">                              &#125;,</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"5000.0-*"</span>,</span><br><span class="line">                                 <span class="attr">"from"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"from_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">199</span></span><br><span class="line">                              &#125;</span><br><span class="line">                           ]</span><br><span class="line">                        &#125;</span><br><span class="line">                     &#125;</span><br><span class="line">                  ]</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"30.0-40.0"</span>,</span><br><span class="line">               <span class="attr">"from"</span>: <span class="number">30</span>,</span><br><span class="line">               <span class="attr">"from_as_string"</span>: <span class="string">"30.0"</span>,</span><br><span class="line">               <span class="attr">"to"</span>: <span class="number">40</span>,</span><br><span class="line">               <span class="attr">"to_as_string"</span>: <span class="string">"40.0"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">504</span>,</span><br><span class="line">               <span class="attr">"group_by_gender"</span>: &#123;</span><br><span class="line">                  <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">                  <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">                  <span class="attr">"buckets"</span>: [</span><br><span class="line">                     &#123;</span><br><span class="line">                        <span class="attr">"key"</span>: <span class="string">"f"</span>,</span><br><span class="line">                        <span class="attr">"doc_count"</span>: <span class="number">253</span>,</span><br><span class="line">                        <span class="attr">"group_by_balance"</span>: &#123;</span><br><span class="line">                           <span class="attr">"buckets"</span>: [</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"*-5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"to"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"to_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">26</span></span><br><span class="line">                              &#125;,</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"5000.0-*"</span>,</span><br><span class="line">                                 <span class="attr">"from"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"from_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">227</span></span><br><span class="line">                              &#125;</span><br><span class="line">                           ]</span><br><span class="line">                        &#125;</span><br><span class="line">                     &#125;,</span><br><span class="line">                     &#123;</span><br><span class="line">                        <span class="attr">"key"</span>: <span class="string">"m"</span>,</span><br><span class="line">                        <span class="attr">"doc_count"</span>: <span class="number">251</span>,</span><br><span class="line">                        <span class="attr">"group_by_balance"</span>: &#123;</span><br><span class="line">                           <span class="attr">"buckets"</span>: [</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"*-5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"to"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"to_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">21</span></span><br><span class="line">                              &#125;,</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"5000.0-*"</span>,</span><br><span class="line">                                 <span class="attr">"from"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"from_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">230</span></span><br><span class="line">                              &#125;</span><br><span class="line">                           ]</span><br><span class="line">                        &#125;</span><br><span class="line">                     &#125;</span><br><span class="line">                  ]</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"key"</span>: <span class="string">"40.0-50.0"</span>,</span><br><span class="line">               <span class="attr">"from"</span>: <span class="number">40</span>,</span><br><span class="line">               <span class="attr">"from_as_string"</span>: <span class="string">"40.0"</span>,</span><br><span class="line">               <span class="attr">"to"</span>: <span class="number">50</span>,</span><br><span class="line">               <span class="attr">"to_as_string"</span>: <span class="string">"50.0"</span>,</span><br><span class="line">               <span class="attr">"doc_count"</span>: <span class="number">45</span>,</span><br><span class="line">               <span class="attr">"group_by_gender"</span>: &#123;</span><br><span class="line">                  <span class="attr">"doc_count_error_upper_bound"</span>: <span class="number">0</span>,</span><br><span class="line">                  <span class="attr">"sum_other_doc_count"</span>: <span class="number">0</span>,</span><br><span class="line">                  <span class="attr">"buckets"</span>: [</span><br><span class="line">                     &#123;</span><br><span class="line">                        <span class="attr">"key"</span>: <span class="string">"m"</span>,</span><br><span class="line">                        <span class="attr">"doc_count"</span>: <span class="number">24</span>,</span><br><span class="line">                        <span class="attr">"group_by_balance"</span>: &#123;</span><br><span class="line">                           <span class="attr">"buckets"</span>: [</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"*-5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"to"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"to_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">3</span></span><br><span class="line">                              &#125;,</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"5000.0-*"</span>,</span><br><span class="line">                                 <span class="attr">"from"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"from_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">21</span></span><br><span class="line">                              &#125;</span><br><span class="line">                           ]</span><br><span class="line">                        &#125;</span><br><span class="line">                     &#125;,</span><br><span class="line">                     &#123;</span><br><span class="line">                        <span class="attr">"key"</span>: <span class="string">"f"</span>,</span><br><span class="line">                        <span class="attr">"doc_count"</span>: <span class="number">21</span>,</span><br><span class="line">                        <span class="attr">"group_by_balance"</span>: &#123;</span><br><span class="line">                           <span class="attr">"buckets"</span>: [</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"*-5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"to"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"to_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">0</span></span><br><span class="line">                              &#125;,</span><br><span class="line">                              &#123;</span><br><span class="line">                                 <span class="attr">"key"</span>: <span class="string">"5000.0-*"</span>,</span><br><span class="line">                                 <span class="attr">"from"</span>: <span class="number">5000</span>,</span><br><span class="line">                                 <span class="attr">"from_as_string"</span>: <span class="string">"5000.0"</span>,</span><br><span class="line">                                 <span class="attr">"doc_count"</span>: <span class="number">21</span></span><br><span class="line">                              &#125;</span><br><span class="line">                           ]</span><br><span class="line">                        &#125;</span><br><span class="line">                     &#125;</span><br><span class="line">                  ]</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         ]</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="使用head插件"><a href="#使用head插件" class="headerlink" title="使用head插件"></a>使用head插件</h2><ul>
+<li>运行 <code>cd &quot;C:\Program Files\elasticsearch\bin&quot; &amp;&amp; plugin -install mobz/elasticsearch-head</code></li>
+<li><a href="http://localhost:9200/_plugin/head/" target="_blank" rel="external">访问地址</a></li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag">#elasticsearch</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/15/elasticsearch/elasticsearch_02/" rel="prev">elasticsearch 第二篇(配置篇)</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/14/python/3rd_windows_install/" rel="next">python第三方包在windows上的安装</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/09/14/elasticsearch/elasticsearch_01/"
+     data-title="elasticsearch 第一篇(入门篇)"
+     data-content=""
+     data-url="http://imsilence.github.io/2015/09/14/elasticsearch/elasticsearch_01/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+            </div>
+
+            
+
+            
+              <div class="comments" id="comments">
+                
+                  <div class="ds-thread" data-thread-key="2015/09/14/elasticsearch/elasticsearch_01/"
+                       data-title="elasticsearch 第一篇(入门篇)" data-url="http://imsilence.github.io/2015/09/14/elasticsearch/elasticsearch_01/">
+                  </div>
+                
+              </div>
+            
+        </div>
+
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Silence" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Silence</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">少年经不得顺境,中年经不得闲境,晚年经不得逆境</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/imsilence" target="_blank">GitHub</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">3.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接口"><span class="nav-number">4.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用marvel插件"><span class="nav-number">5.</span> <span class="nav-text">使用marvel插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#状态查询"><span class="nav-number">6.</span> <span class="nav-text">状态查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查询所有索引"><span class="nav-number">7.</span> <span class="nav-text">查询所有索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建索引"><span class="nav-number">8.</span> <span class="nav-text">创建索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#索引、读取、删除文档"><span class="nav-number">9.</span> <span class="nav-text">索引、读取、删除文档</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#删除索引"><span class="nav-number">10.</span> <span class="nav-text">删除索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改文档"><span class="nav-number">11.</span> <span class="nav-text">修改文档</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更新文档"><span class="nav-number">12.</span> <span class="nav-text">更新文档</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#根据查询删除文档"><span class="nav-number">13.</span> <span class="nav-text">根据查询删除文档</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取文档数量"><span class="nav-number">14.</span> <span class="nav-text">获取文档数量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#批量操作"><span class="nav-number">15.</span> <span class="nav-text">批量操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Query查询"><span class="nav-number">16.</span> <span class="nav-text">Query查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Query-SDL"><span class="nav-number">17.</span> <span class="nav-text">Query SDL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Filters-查询"><span class="nav-number">18.</span> <span class="nav-text">Filters 查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#聚合分析"><span class="nav-number">19.</span> <span class="nav-text">聚合分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用head插件"><span class="nav-number">20.</span> <span class="nav-text">使用head插件</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+        <div class="footer-inner">
+            <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silence</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+</div>
+
+<script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"imsilence"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.4"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.4"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.4" id="motion.global"></script>
+
+
+
+  <script type="text/javascript" src="/js/search-toggle.js"></script>
+
+
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.4" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if (isDesktop() && CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    });
+  </script>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (CONFIG.sidebar === 'always') {
+            displaySidebar();
+        }
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+
+
+
+
+
+<!-- lazyload -->
+<script type="text/javascript" src="/js/lazyload.js"></script>
+<script type="text/javascript">
+    jQuery(function () {
+        jQuery("#posts img").lazyload({
+            placeholder: "/images/loading.gif",
+            effect: "fadeIn"
+        });
+    });
+</script>
+</body>
+</html>

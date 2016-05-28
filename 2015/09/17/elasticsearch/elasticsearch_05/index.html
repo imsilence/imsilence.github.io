@@ -1,0 +1,733 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+    
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.4"/>
+
+
+    <meta name="description" content="少年经不得顺境,中年经不得闲境,晚年经不得逆境" />
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.4" />
+
+
+<meta name="description" content="INDEX API示例:12345PUT /test/user/1&amp;#123;  &quot;name&quot;: &quot;silence&quot;,  &quot;age&quot;: 27&amp;#125;
+说明:1.索引文档使用PUT方法，需要指定index(test)、type(user)和文档编号，提交数据为json格式为文档的内容2.在索引文档时，会自动检查index和type是否存在，若不存在则自动创建，对于type会自动调用putmapp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elasticsearch 第五篇(文档操作接口)">
+<meta property="og:url" content="http://imsilence.github.io/2015/09/17/elasticsearch/elasticsearch_05/index.html">
+<meta property="og:site_name" content="Silence's Blogs">
+<meta property="og:description" content="INDEX API示例:12345PUT /test/user/1&amp;#123;  &quot;name&quot;: &quot;silence&quot;,  &quot;age&quot;: 27&amp;#125;
+说明:1.索引文档使用PUT方法，需要指定index(test)、type(user)和文档编号，提交数据为json格式为文档的内容2.在索引文档时，会自动检查index和type是否存在，若不存在则自动创建，对于type会自动调用putmapp">
+<meta property="og:updated_time" content="2016-05-28T05:41:06.710Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="elasticsearch 第五篇(文档操作接口)">
+<meta name="twitter:description" content="INDEX API示例:12345PUT /test/user/1&amp;#123;  &quot;name&quot;: &quot;silence&quot;,  &quot;age&quot;: 27&amp;#125;
+说明:1.索引文档使用PUT方法，需要指定index(test)、type(user)和文档编号，提交数据为json格式为文档的内容2.在索引文档时，会自动检查index和type是否存在，若不存在则自动创建，对于type会自动调用putmapp">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+    <title> elasticsearch 第五篇(文档操作接口) // Silence's Blogs </title>
+</head>
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?d76d6abdbe271d3cca4ddb8f5649243c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+<div class="container one-column page-post-detail">
+    <div class="headband"></div>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-logo"></i>
+      </span>
+      <span class="site-title">Silence's Blogs</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+<form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'YGzc19xtW4Xs6NWUE3qA','2.0.0');
+</script>
+
+<div class="site-search-toggle"></div>
+    </div>
+  
+</nav>
+
+
+        </div>
+    </header>
+
+    <main id="main" class="main">
+        <div class="main-inner">
+            <div id="content" class="content">
+                
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              elasticsearch 第五篇(文档操作接口)
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-17T13:46:21+08:00" content="2015-09-17">
+            2015-09-17
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing"><a href="/categories/存储/" itemprop="url" rel="index"><span itemprop="name">存储</span></a></span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/17/elasticsearch/elasticsearch_05/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/17/elasticsearch/elasticsearch_05/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="INDEX-API"><a href="#INDEX-API" class="headerlink" title="INDEX API"></a>INDEX API</h2><p>示例:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT /<span class="built_in">test</span>/user/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"silence"</span>,</span><br><span class="line">  <span class="string">"age"</span>: 27</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明:<br>1.索引文档使用PUT方法，需要指定index(test)、type(user)和文档编号，提交数据为json格式为文档的内容<br>2.在索引文档时，会自动检查index和type是否存在，若不存在则自动创建，对于type会自动调用putmapping方法为type自动创建mapping，当提交的json数据新增字段时也会自动对type自动调用putmapping方法在mapping中添加新的字段类型<br>可通过elasticsearch.yml中添加配置禁用自动创建index和type<br><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">action.auto_create_index: <span class="keyword">false</span>        <span class="meta">#禁用自动创建index</span></span><br><span class="line"><span class="keyword">index</span>.mapper.dynamic: <span class="keyword">false</span>            <span class="meta">#禁用自动生成type</span></span><br></pre></td></tr></table></figure></p>
+<p>在某些时候允许某类型或者禁用某类型的index自动创建，则可以使用匹配模式和黑白名单形式进行配置</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">action.auto_create_index: +<span class="keyword">test</span>*,+temp*,+tmp*       #只允许自动创建以<span class="keyword">test</span>,temp,tmp开头的<span class="built_in">index</span></span><br></pre></td></tr></table></figure>
+<p>说明: 若action.auto_create_index设置为true或允许某些index执行, index.mapper.dynamic设置为false, 则可第一次时index自动创建一个type，后续不能再单独创建新的type</p>
+<p>3.文档中的version属性<br>es为每个文档自动设置一个version属性, version从1开始, 当文档发生更新，删除操作时version都会自增1, version是范围为[1, 9.2e+18]的整数, 在获取或查询文档是version作为文档的一部分返回<br>version属性主要使用乐观锁机保证数据在读取后再进行更新动作时的数据一致性问题，在提交请求时通过指定version参数表示存储的版本必须符合条件时才可执行成功, 默认条件为两者一致，若不提交version表示不进行检查<br>使用方法:<br>例如编号为1的文档version为7<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"_index"</span>: <span class="string">"test"</span>,</span><br><span class="line">   <span class="attr">"_type"</span>: <span class="string">"user"</span>,</span><br><span class="line">   <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">   <span class="attr">"_version"</span>: <span class="number">7</span>,</span><br><span class="line">   <span class="attr">"found"</span>: <span class="literal">true</span>,</span><br><span class="line">   <span class="attr">"_source"</span>: &#123;</span><br><span class="line">      <span class="attr">"name"</span>: <span class="string">"silence"</span>,</span><br><span class="line">      <span class="attr">"age"</span>: <span class="number">27</span></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当我们使用如下请求执行更新动作可看到执行成功，并且version自增1, 返回结果中为8:<br>输入:<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT /<span class="keyword">test</span>/user/1?<span class="keyword">version</span>=7</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"silence"</span>,</span><br><span class="line">  <span class="string">"age"</span>: 28</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"_index"</span>: <span class="string">"test"</span>,</span><br><span class="line">   <span class="attr">"_type"</span>: <span class="string">"user"</span>,</span><br><span class="line">   <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">   <span class="attr">"_version"</span>: <span class="number">8</span>,</span><br><span class="line">   <span class="attr">"created"</span>: <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当我们再次发出version=7的请求得到的响应为:<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   "error": "VersionConflictEngineException[<span class="string">[test</span>][<span class="symbol">2</span>] [<span class="string">user</span>][<span class="symbol">1</span>]: version conflict, current [8], provided [7]]",</span><br><span class="line">   "status": 409</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可自己测试version&gt;8的请求依然失败, 此时你可能会想到在高并发情况下此种效率是否会低效, 可能你会在内存中放置一个version+1的副本, 通过内存中对副本进行自增, 然后异步方式提高并发, 此时执行成功率会下降并且导致数据丢失, 在此种情况下只要满足你指定的version大于存储中的版本号即可, 为解决此种问题es提供version_type可以指定使用的比较策略：</p>
+<table>
+<thead>
+<tr>
+<th>version_type值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>internal</td>
+<td>默认值, 表示指定version必须与存储中的version一致, 若成功则存储version自增1</td>
+</tr>
+<tr>
+<td>external/external_gt</td>
+<td>指定值必须大于存储中的version, 若成功存储version设置为提交的version</td>
+</tr>
+<tr>
+<td>external_gte</td>
+<td>指定值必须大于等于存储中的version, 若成功存储version设置为提交的version</td>
+</tr>
+<tr>
+<td>force</td>
+<td>强制更新，并将存储version设置为提交的version</td>
+</tr>
+</tbody>
+</table>
+<p>4.op_type: 在提交请求时指定op_type=create, 表示若id不存在时创建, 否则失败<br>输入<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT /<span class="built_in">test</span>/user/1?op_<span class="built_in">type</span>=create</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"silence"</span>,</span><br><span class="line">  <span class="string">"age"</span>: 28</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   "error": "DocumentAlreadyExistsException[<span class="string">[test</span>][<span class="symbol">2</span>] [<span class="string">user</span>][<span class="symbol">1</span>]: document already exists]",</span><br><span class="line">   "status": 409</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>op_type=create的另一种表示方法为:<br><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT <span class="meta-keyword">/test/</span>user/<span class="number">1</span>/<span class="class">_create</span><br><span class="line"></span>&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"silence"</span>,</span><br><span class="line">  <span class="string">"age"</span>: <span class="number">28</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>5.ID生成器: 在大多数情况下我们不需要维护也不关心文档的id是什么, 在es中可以为文档自动生成id，方式为使用post方式提交参数, 并在请求中不指定id值(若指定则使用指定的id值)<br>6.routing路由分配: 在创建index时通常会将index数据存放在不同的shard上，es默认通过hash(id) % shard_num决定将文档存储在哪个shard上，此刻你应该想到routing的作用，对，就是用来指定做负载是hash的输入参数:<br>输入:<br><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST <span class="meta-keyword">/test/</span>user/?routing=<span class="class">name</span><br><span class="line"></span>&#123;</span><br><span class="line">  <span class="string">"name"</span>: <span class="string">"silence"</span>,</span><br><span class="line">  <span class="string">"age"</span>: <span class="number">28</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>若在索引文档时显示指定routing，则在提交文档中必须存在指定routing对应的值，否则执行失败</p>
+<p>7.分布式执行<br>索引操作会被路由到shard上，并在包含该shard的node中执行，若存在复制shard，则当所有复制节点从主shard中执行成功后，返回结果</p>
+<p>8.一致性<br>为防止某些网络节点错误，默认情况下当索引成功数量&gt;=仲裁(replicas/2+1)时，则认为操作成功，对于复制数量为1时则数据一共存两份（主shard和复制shard），此时若主shard写成功则认为执行成功<br>可在elasticsearch.yml中将action.write_consistency设置为one,all,quorum修改判断依据</p>
+<p>9.刷新shard<br>为了在索引文档成功后立即查询到文档(当shard刷新后才可search到), 可以通过设置refresh=true在索引文档成功后立即执行存储该数据shard的刷新动作, 在设置前应该对索引和查询进行对性能测试，对于get接口获取文档是完全实时的</p>
+<p>再次分享自己趟过的一个坑:<br>背景:需要在一堆日志中统计所有存在的源IP，日志时按天存放的，代码结构如下：<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_all_store_hosts</span><span class="params">()</span></span>:</span><br><span class="line">   <span class="string">''</span><span class="string">'</span><br><span class="line">      返回es中存储中所有ip</span><br><span class="line">      在索引doc时未设置refresh</span><br><span class="line">   '</span><span class="string">''</span></span><br><span class="line">   <span class="keyword">return</span> _all<span class="number">_</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_distinct_hosts_from_logs</span><span class="params">(day)</span></span>:</span><br><span class="line">   <span class="string">''</span><span class="string">'</span><br><span class="line">      从日志中查询所有的ip并去重</span><br><span class="line">   '</span><span class="string">''</span></span><br><span class="line">   <span class="keyword">return</span> _hosts<span class="number">_</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">store_hosts</span><span class="params">(hosts)</span></span></span><br><span class="line">   <span class="string">''</span><span class="string">'</span><br><span class="line">   将新的ip存储到es中</span><br><span class="line">   '</span><span class="string">''</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">stat</span><span class="params">(day)</span></span>:</span><br><span class="line">   _all<span class="number">_</span> = get_all_store_hosts()</span><br><span class="line">   _hosts<span class="number">_</span> = <span class="symbol">get_distinct_hosts_from_logs:</span></span><br><span class="line">   _hosts<span class="number">_</span> = [_host <span class="keyword">for</span> _host <span class="keyword">in</span>  _hosts<span class="number">_</span> <span class="keyword">if</span> _host <span class="keyword">not</span> <span class="keyword">in</span> _all<span class="number">_</span>]</span><br><span class="line">   <span class="keyword">if</span> len(_hosts<span class="number">_</span>):</span><br><span class="line">      store_hosts(_hosts<span class="number">_</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name_<span class="number">_</span> == <span class="string">'__main__'</span>:</span><br><span class="line">   <span class="keyword">for</span> day <span class="keyword">in</span> xrange(<span class="number">1</span>, <span class="number">30</span>):</span><br><span class="line">      stat(day)</span><br></pre></td></tr></table></figure></p>
+<p>各位看着有问题吗？好吧，貌似没有问题，但是呢执行完成后，你会惊奇的发现es中你的统计的数据里面存储大量重复的ip，问题原因大家已经知道了吧</p>
+<p>解决方法：我在内存中做了一个缓存，通过缓存去重，当在缓存中不存在时则放入缓存中并存储到es</p>
+<ol>
+<li>timeout<br>当文档被索引时会从主shard将数据复制到复制shard, 主shard需要等待复制shard的响应后返回执行结果, 此等待时间默认为1min, 可以通过在请求中添加timeout修改此时间</li>
+</ol>
+<h2 id="GET-API"><a href="#GET-API" class="headerlink" title="GET API"></a>GET API</h2><p>示例:<br>输入:<br><code>GET /test/user/1</code><br>输入:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"_index"</span>: <span class="string">"test"</span>,</span><br><span class="line">   <span class="attr">"_type"</span>: <span class="string">"user"</span>,</span><br><span class="line">   <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">   <span class="attr">"_version"</span>: <span class="number">3</span>,</span><br><span class="line">   <span class="attr">"found"</span>: <span class="literal">true</span>,</span><br><span class="line">   <span class="attr">"_source"</span>: &#123;</span><br><span class="line">      <span class="attr">"name"</span>: <span class="string">"silence"</span>,</span><br><span class="line">      <span class="attr">"age"</span>: <span class="number">28</span>,</span><br><span class="line">      <span class="attr">"book"</span>: &#123;</span><br><span class="line">         <span class="attr">"name"</span>: <span class="string">"迷失的自己"</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明:<br>1.可以通过GET方法根据文档的ID读取文档内容<br>_index,_type,_id三元组唯一标识一个文档, 分别表示索引，类型和文档id<br>_version为文档的版本<br>found表示是否查询到结果, true表示存在, false表示不存在<br>_source是真正的文档内容</p>
+<p>2.可以通过HEAD方法根据reponse header信息判断文档是否存在<br>输入:<code>curl -XHEAD -i &quot;http://localhost:9200/test/user/1&quot;</code><br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Content-Type</span>: text/plain; charset=UTF-8</span><br><span class="line"><span class="attribute">Content-Length</span>: 0`</span><br></pre></td></tr></table></figure></p>
+<p>输入:<code>curl -XHEAD -i &quot;http://localhost:9200/test/user/1</code><br>输出:<br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">404</span> Not Found</span><br><span class="line"><span class="attribute">Content-Type</span>: text/plain; charset=UTF-8</span><br><span class="line"><span class="attribute">Content-Length</span>: 0</span><br></pre></td></tr></table></figure></p>
+<p>可以看到若文档存在使用HEAD方法则返回状态码为200，否则状态码为404</p>
+<p>3.GET操作默认是实时的，也就是说文档索引后可立即读取，并不像Search需要等待shard刷新，但是通过在GET请求中通过参数realtime=false或者在elasticsearch.yml配置action.get.realtime:false禁用<br>4.在GET数据时可以使用”_all”替代要查询的_type, 此时会返回在所有type中第一个匹配到的document<br>5.在GET数据时可以通过_source, _source_include &amp; _source_exclude设置返回文档包含的属性<br>输入: <code>GET /test/user/1?_source=false</code> 不返回任何_source内容<br>输入: <code>GET /test/user/1?_source=name</code> 只返回_source中的name<br>输入: <code>GET /test/user/1?_source_include=*.name&amp;_source_exclude=name</code></p>
+<p>_source常用于需要返回一两个字段的情况, 内容较多的文档属性值进行筛选时可以组合_source_include和_source_exclude<br>6.若只想返回_source中的内容可以使用:<code>GET /test/user/1/_source</code><br>7.若在索引文档时指定了routing_key为了可以正确GET到文档,则需要在GET请求中添加routing指定正确的routing_key<br>8.默认GET文档执行在复制shard的上，但可以通过设置preference为_primary或者_local, _primary表示在主shard上执行, _local表示在一个分配且可用的shard上执行<br>9.GET请求中也可以添加refresh=true参数强制使获取文档相关shard刷新, 从而可以被search到<br>10.在GET请求发出后，会根据需要获取文档id将请求转发到一个相关的复制节点上执行并返回结果<br>11.可以在GET请求中指定version属性用于需要获取符合规则version的文档</p>
+<h2 id="DELETE-API"><a href="#DELETE-API" class="headerlink" title="DELETE API"></a>DELETE API</h2><p>示例:<br>输入<br><code>DELETE /test/user/1</code></p>
+<p>说明:<br>1.在DELETE方法提交的参数中可以设置version属性用于删除符合规则的version文档<br>2.当在index文档是设置routing_key, 那么在删除文档时也需要使用routing设置正确的routing_key<br>3.当删除文档是若index不存在, 则es会自动创建<br>4.删除文档请求会被转发到主shard上, 主shard操作完成后, 各复制shard会从主shard进行同步<br>5.</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag">#elasticsearch</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/17/elasticsearch/elasticsearch_index_refresh/" rel="prev">记一次elasticsearch索引数据后但查不到</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/16/elasticsearch/elasticsearch_04/" rel="next">elasticsearch 第四篇(API约定)</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/09/17/elasticsearch/elasticsearch_05/"
+     data-title="elasticsearch 第五篇(文档操作接口)"
+     data-content=""
+     data-url="http://imsilence.github.io/2015/09/17/elasticsearch/elasticsearch_05/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+            </div>
+
+            
+
+            
+              <div class="comments" id="comments">
+                
+                  <div class="ds-thread" data-thread-key="2015/09/17/elasticsearch/elasticsearch_05/"
+                       data-title="elasticsearch 第五篇(文档操作接口)" data-url="http://imsilence.github.io/2015/09/17/elasticsearch/elasticsearch_05/">
+                  </div>
+                
+              </div>
+            
+        </div>
+
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Silence" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Silence</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">少年经不得顺境,中年经不得闲境,晚年经不得逆境</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/imsilence" target="_blank">GitHub</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#INDEX-API"><span class="nav-number">1.</span> <span class="nav-text">INDEX API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GET-API"><span class="nav-number">2.</span> <span class="nav-text">GET API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DELETE-API"><span class="nav-number">3.</span> <span class="nav-text">DELETE API</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+        <div class="footer-inner">
+            <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silence</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+</div>
+
+<script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"imsilence"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.4"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.4"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.4" id="motion.global"></script>
+
+
+
+  <script type="text/javascript" src="/js/search-toggle.js"></script>
+
+
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.4" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if (isDesktop() && CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    });
+  </script>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (CONFIG.sidebar === 'always') {
+            displaySidebar();
+        }
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+
+
+
+
+
+<!-- lazyload -->
+<script type="text/javascript" src="/js/lazyload.js"></script>
+<script type="text/javascript">
+    jQuery(function () {
+        jQuery("#posts img").lazyload({
+            placeholder: "/images/loading.gif",
+            effect: "fadeIn"
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+    
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.4"/>
+
+
+    <meta name="description" content="少年经不得顺境,中年经不得闲境,晚年经不得逆境" />
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.4" />
+
+
+<meta name="description" content="背景：在某年某月某日发现es运行不正常，查看日志发现如下错误1java.io.IOException: Too many open files
+以下为操作步骤:1.查看es节点信息结果:1234567891011121314151617181920&amp;#123;  &quot;cluster_name&quot; : &quot;elasticsearch&quot;,  &quot;nodes&quot; : &amp;#123;    &quot;eE4eHSOWTK-j">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次修改elasticsearch文件描述符数量">
+<meta property="og:url" content="http://imsilence.github.io/2015/09/16/elasticsearch/elasticsearch_max_open_files/index.html">
+<meta property="og:site_name" content="Silence's Blogs">
+<meta property="og:description" content="背景：在某年某月某日发现es运行不正常，查看日志发现如下错误1java.io.IOException: Too many open files
+以下为操作步骤:1.查看es节点信息结果:1234567891011121314151617181920&amp;#123;  &quot;cluster_name&quot; : &quot;elasticsearch&quot;,  &quot;nodes&quot; : &amp;#123;    &quot;eE4eHSOWTK-j">
+<meta property="og:updated_time" content="2016-05-28T05:41:06.714Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次修改elasticsearch文件描述符数量">
+<meta name="twitter:description" content="背景：在某年某月某日发现es运行不正常，查看日志发现如下错误1java.io.IOException: Too many open files
+以下为操作步骤:1.查看es节点信息结果:1234567891011121314151617181920&amp;#123;  &quot;cluster_name&quot; : &quot;elasticsearch&quot;,  &quot;nodes&quot; : &amp;#123;    &quot;eE4eHSOWTK-j">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+    <title> 记一次修改elasticsearch文件描述符数量 // Silence's Blogs </title>
+</head>
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?d76d6abdbe271d3cca4ddb8f5649243c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+<div class="container one-column page-post-detail">
+    <div class="headband"></div>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-logo"></i>
+      </span>
+      <span class="site-title">Silence's Blogs</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+<form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'YGzc19xtW4Xs6NWUE3qA','2.0.0');
+</script>
+
+<div class="site-search-toggle"></div>
+    </div>
+  
+</nav>
+
+
+        </div>
+    </header>
+
+    <main id="main" class="main">
+        <div class="main-inner">
+            <div id="content" class="content">
+                
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              记一次修改elasticsearch文件描述符数量
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-16T13:20:21+08:00" content="2015-09-16">
+            2015-09-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing"><a href="/categories/存储/" itemprop="url" rel="index"><span itemprop="name">存储</span></a></span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/16/elasticsearch/elasticsearch_max_open_files/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/16/elasticsearch/elasticsearch_max_open_files/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>背景：在某年某月某日发现es运行不正常，查看日志发现如下错误<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java<span class="selector-class">.io</span><span class="selector-class">.IOException</span>: Too many open files</span><br></pre></td></tr></table></figure></p>
+<p>以下为操作步骤:<br>1.查看es节点信息结果:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"eE4eHSOWTK-j6IO7JJzcXG"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"Hardcore"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[silence/192.168.1.111:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"silence"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.1.111"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.6.0"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"cdd3ac4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.1.111:9200]"</span>,</span><br><span class="line">      <span class="attr">"process"</span> : &#123;</span><br><span class="line">        <span class="attr">"refresh_interval_in_millis"</span> : <span class="number">1000</span>,</span><br><span class="line">        <span class="attr">"id"</span> : <span class="number">10598</span>,</span><br><span class="line">        <span class="attr">"max_file_descriptors"</span> : <span class="number">32768</span>,</span><br><span class="line">        <span class="attr">"mlockall"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>疑问：明明在/etc/init.d/elasticsearch启动脚本中设置了<code>MAX_OPEN_FILES=65535</code>, 且执行<code>ulimits -n $MAX_OPEN_FILES</code>成功, 但是es节点信息中max_file_descriptors始终为32768</p>
+<p>2.查看/etc/init.d/elasticsearch启动脚本内容，在启动进程时使用/etc/init.d/functions下的daemon函数启动，最终追溯到daemon使用<code>runuser -s /bin/bash $user -c &quot;$corelimit &gt;/dev/null 2&gt;&amp;1 ; $*&quot;</code>方式启动进程，自然想要在-c中添加ulimit -n 65535, 结果以失败告终，启动脚本报错<code>ulimit: open files: cannot modify limit: Operation not permitted</code>，自己在命令行下发现普通用户在修改时报错, 而root用户就ok</p>
+<p>3.修改/etc/security/limits.conf文件添加如下内容(es运行用户为elasticsearch)<br><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch        hard     nofile         <span class="number">65535</span></span><br><span class="line">elasticsearch        <span class="keyword">soft</span>     nofile         <span class="number">65535</span></span><br></pre></td></tr></table></figure></p>
+<p>修改内容后重启es, 启动后查询es节点信息max_file_descriptors还是为32768 … 此时已疯</p>
+<p>4.查看谷歌，说/etc/pam.d/login文件中需要有<code>session     required      pam_limits.so</code> limits.conf文件才会起效，于是乎，我加上了，结果…尼玛咋还是32768呢<br>5.再次查看/etc/pam.d/login发现有这么一句话<code>session    include      system-auth</code>, 一看就是导入了文件system-auth, 于是在system-auth中发现已经存在<code>session     required      pam_limits.so</code>，然后尼玛删除步骤3添加的内容<br>6.此时想到反编译pam_limits.so文件看看到底干了什么事, 当然先得查询文件在哪 <code>find / -name pam_limits.so</code><br>然后使用<code>strings pam_limits.so</code> 结果尼玛发现其中有这么两行:<br><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/etc/security/limits.conf</span><br><span class="line"><span class="bullet">.</span><br><span class="line"></span><span class="bullet">.</span><br><span class="line"></span><span class="bullet">.</span><br><span class="line"></span>/etc/security/limits.d/<span class="strong">*.conf</span></span><br></pre></td></tr></table></figure></p>
+<p>自然想查看/etc/security/limits.d/下的*.conf结果，发现了def.conf，内容为:<br><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">*        </span>hard     nofile         32768</span><br><span class="line"><span class="bullet">*        </span>soft     nofile         32768</span><br></pre></td></tr></table></figure></p>
+<p>说明: *表示对所有用户生效</p>
+<p>结果自然要试试修改def.conf文件，结果这次ok了</p>
+<p>分析原因：<br>1.why在/etc/init.d/elasticsearch中已经设置ulimit -n为啥没有生效<br>runuser命令格式:<code>runuser -s [shell] [uid/gid] -c &quot;command&quot;</code>, 说明:使用一个替代的用户或组ID运行一个Shell, 只有会话的PAM hooks运行, 并且没有密码提示, 这个命令仅在root用户时有用<br>根据测试也知道ulimit -n只是修改当前会话中的打开文件描述符数量, 当打开新回话时或切换新用户则失效。并根据描述得知runuser在打开会话之后PAM hooks认证模块会执行，因此在此前的设置参数都无效</p>
+<p>2.why在runuser时在-c中添加ulimit -n 65535报错<br>查找资料发现, 普通用户在设置ulimit -n时其大小不能超过预设置的值, 那预设置的值是谁呢, 自然就想到limits.conf，可以自己测试在limits.conf中添加自己的用户信息(silence is me)，可以发现再次修改则正常<br><figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">silence        hard     nofile         <span class="number">65535</span></span><br><span class="line">silence        <span class="keyword">soft</span>     nofile         <span class="number">65535</span></span><br></pre></td></tr></table></figure></p>
+<p>3.limits.conf和limits.d/*.conf的关系<br>此时自然想到的是文件加载顺序和配置内容有关，配置相同的内容但是值不通时，后加载的配置文件的值会生效呢, 我们做一下测试:在limits.d/def.conf配置文件中添加一下信息，因为第2步已经在limit.conf中设置其值为65535并测试成功，那么此时若我们再测试<code>ulimit -n 50000</code>正常而<code>ulimit -n 65535</code> 不正常自然可以验证我们的猜测<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">silence</span>        hard     nofile         <span class="number">50000</span></span><br></pre></td></tr></table></figure></p>
+<p>结果自然与猜测一致<br>根据反编译的结果pam_limits.so会先加载limits.conf然后再加载limits.d/<em>.conf此时有一定顺序, 但是limits.d/</em>.conf中加载顺序如何呢? 猜测与系统排序有关，但未测试，在通常情况下好的系统管理员对不同用户应该根据userid在limits.d下建立不同的文件单独配置，方便管理<br>为什么在limits.d/def.conf中值设置hard值呢？可以查看配置文件的规则，hard设置为允许修改的最大值而soft设置的是新回话生成时默认设置</p>
+<p>4.此时你应该会问这个值到底可以设置多大?<br>查看文件/proc/sys/fs/file-max和/proc/sys/fs/file-nr内容<br>输入: <code>cat /proc/sys/fs/file-max</code><br>输出: <code>191832</code></p>
+<p>输入: <code>cat/proc/sys/fs/file-nr</code><br>输出: <code>1792  0 191832</code></p>
+<p>查阅GOOGLE, file-nr文件中的三个数分别表示: 系统已经分配的文件句柄数, 没有用到的句柄数和所有可分配的最大句柄数，file-max中的值为最大所能分配的句柄数, 因此在ulimit -n是设置的值不能超过file-max记录的值<br>file-nr文件内容通常由在系统启动时根据系统内存计算得出，系统内存增大则file-max增大</p>
+<p>5.如何查看其他进程当前设置的max_file_descriptors<br>对于linux内核为2.6.24及以后版本<br>输入: <code>cat /proc/34690/limits | grep &quot;Max open files&quot;</code><br>输出: <code>Max open files            32768                32768                files</code></p>
+<p>6.如何查看某进程当前打开的文件句柄数:<br>输入: <code>lsof -n|awk &#39;{print $2}&#39;|sort|uniq -c|sort -nr|grep pid</code><br>输出: <code>cnt pid</code></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag">#elasticsearch</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/16/elasticsearch/elasticsearch_04/" rel="prev">elasticsearch 第四篇(API约定)</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/15/elasticsearch/elasticsearch_03/" rel="next">elasticsearch 第三篇(安装篇)</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/09/16/elasticsearch/elasticsearch_max_open_files/"
+     data-title="记一次修改elasticsearch文件描述符数量"
+     data-content=""
+     data-url="http://imsilence.github.io/2015/09/16/elasticsearch/elasticsearch_max_open_files/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+            </div>
+
+            
+
+            
+              <div class="comments" id="comments">
+                
+                  <div class="ds-thread" data-thread-key="2015/09/16/elasticsearch/elasticsearch_max_open_files/"
+                       data-title="记一次修改elasticsearch文件描述符数量" data-url="http://imsilence.github.io/2015/09/16/elasticsearch/elasticsearch_max_open_files/">
+                  </div>
+                
+              </div>
+            
+        </div>
+
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Silence" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Silence</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">少年经不得顺境,中年经不得闲境,晚年经不得逆境</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/imsilence" target="_blank">GitHub</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+        <div class="footer-inner">
+            <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silence</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+</div>
+
+<script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"imsilence"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.4"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.4"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.4" id="motion.global"></script>
+
+
+
+  <script type="text/javascript" src="/js/search-toggle.js"></script>
+
+
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.4" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if (isDesktop() && CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    });
+  </script>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (CONFIG.sidebar === 'always') {
+            displaySidebar();
+        }
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+
+
+
+
+
+<!-- lazyload -->
+<script type="text/javascript" src="/js/lazyload.js"></script>
+<script type="text/javascript">
+    jQuery(function () {
+        jQuery("#posts img").lazyload({
+            placeholder: "/images/loading.gif",
+            effect: "fadeIn"
+        });
+    });
+</script>
+</body>
+</html>

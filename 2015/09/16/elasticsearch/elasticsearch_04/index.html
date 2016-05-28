@@ -1,0 +1,723 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+    
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.4"/>
+
+
+    <meta name="description" content="少年经不得顺境,中年经不得闲境,晚年经不得逆境" />
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.4" />
+
+
+<meta name="description" content="对多个indices进行操作es中大多resetapi支持请求多个index, 例如”test1,test2,test3”，index也可以使用通配符, 例如”test*“, 还可以使用+,-来包含或移除某个或某类index, 例如”test*,-test1”支持设置多个的api的请求字符串可设置以下参数:
+
+ignore_unavailable: 是否忽略单个index是否可用(不存在或关闭),">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elasticsearch 第四篇(API约定)">
+<meta property="og:url" content="http://imsilence.github.io/2015/09/16/elasticsearch/elasticsearch_04/index.html">
+<meta property="og:site_name" content="Silence's Blogs">
+<meta property="og:description" content="对多个indices进行操作es中大多resetapi支持请求多个index, 例如”test1,test2,test3”，index也可以使用通配符, 例如”test*“, 还可以使用+,-来包含或移除某个或某类index, 例如”test*,-test1”支持设置多个的api的请求字符串可设置以下参数:
+
+ignore_unavailable: 是否忽略单个index是否可用(不存在或关闭),">
+<meta property="og:updated_time" content="2016-05-28T05:41:06.710Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="elasticsearch 第四篇(API约定)">
+<meta name="twitter:description" content="对多个indices进行操作es中大多resetapi支持请求多个index, 例如”test1,test2,test3”，index也可以使用通配符, 例如”test*“, 还可以使用+,-来包含或移除某个或某类index, 例如”test*,-test1”支持设置多个的api的请求字符串可设置以下参数:
+
+ignore_unavailable: 是否忽略单个index是否可用(不存在或关闭),">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+    <title> elasticsearch 第四篇(API约定) // Silence's Blogs </title>
+</head>
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?d76d6abdbe271d3cca4ddb8f5649243c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+<div class="container one-column page-post-detail">
+    <div class="headband"></div>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-logo"></i>
+      </span>
+      <span class="site-title">Silence's Blogs</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+<form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'YGzc19xtW4Xs6NWUE3qA','2.0.0');
+</script>
+
+<div class="site-search-toggle"></div>
+    </div>
+  
+</nav>
+
+
+        </div>
+    </header>
+
+    <main id="main" class="main">
+        <div class="main-inner">
+            <div id="content" class="content">
+                
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              elasticsearch 第四篇(API约定)
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-16T15:46:21+08:00" content="2015-09-16">
+            2015-09-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing"><a href="/categories/存储/" itemprop="url" rel="index"><span itemprop="name">存储</span></a></span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/16/elasticsearch/elasticsearch_04/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/16/elasticsearch/elasticsearch_04/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="对多个indices进行操作"><a href="#对多个indices进行操作" class="headerlink" title="对多个indices进行操作"></a>对多个indices进行操作</h2><p>es中大多resetapi支持请求多个index, 例如”test1,test2,test3”，index也可以使用通配符, 例如”test*“, 还可以使用+,-来包含或移除某个或某类index, 例如”test*,-test1”<br>支持设置多个的api的请求字符串可设置以下参数:</p>
+<ul>
+<li>ignore_unavailable: 是否忽略单个index是否可用(不存在或关闭), true表示忽略, false表示不忽略, 默认为false, 例如查询已经关闭的index:</li>
+</ul>
+<p>输入: <code>GET /test1/user,account/_search?ignore_unavailable=false</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"error"</span>: <span class="string">"IndexClosedException[[test1] closed]"</span>,</span><br><span class="line">   <span class="attr">"status"</span>: <span class="number">403</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输入: <code>GET /test1/user,account/_search?ignore_unavailable=false</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: []</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>allow_no_indices: 是否忽略通配符匹配不到index(不存在或关闭)的情况, true表示允许, false表示不允许，默认为true, 例如查询已经关闭的index:</li>
+</ul>
+<p>输入: <code>GET /test*/_search?allow_no_indices=false</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"error"</span>: <span class="string">"IndexMissingException[[test*] missing]"</span>,</span><br><span class="line">   <span class="attr">"status"</span>: <span class="number">404</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输入: <code>GET /test*/_search?allow_no_indices=true</code></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"timed_out"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"_shards"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"successful"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"failed"</span>: <span class="number">0</span></span><br><span class="line">   &#125;,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"max_score"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: []</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>expand_wildcards: 设置是否扩展通配符到closed的index中，open表示只在匹配并为open的index中查询，closed表示在匹配的所有的index中查询, 默认为closed, 例如查询已经关闭的index<br>输入: <code>GEt /test*/_search?expand_wildcards=closed</code><br>输出:<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"error"</span>: <span class="string">"IndexClosedException[[test1] closed]"</span>,</span><br><span class="line">   <span class="attr">"status"</span>: <span class="number">403</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="公共参数"><a href="#公共参数" class="headerlink" title="公共参数"></a>公共参数</h2><ul>
+<li><p>format: 表示返回数据的格式, 可选值为yaml和json两种, 例如:<br>输入: <code>GET /test1/user/_search?format=yaml</code><br>输出:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">took:</span> <span class="number">23</span></span><br><span class="line"><span class="attr">timed_out:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">_shards:</span></span><br><span class="line"><span class="attr">  total:</span> <span class="number">5</span></span><br><span class="line"><span class="attr">  successful:</span> <span class="number">5</span></span><br><span class="line"><span class="attr">  failed:</span> <span class="number">0</span></span><br><span class="line"><span class="attr">hits:</span></span><br><span class="line"><span class="attr">  total:</span> <span class="number">1</span></span><br><span class="line"><span class="attr">  max_score:</span> <span class="number">1.0</span></span><br><span class="line"><span class="attr">  hits:</span></span><br><span class="line"><span class="attr">  - _index:</span> <span class="string">"test1"</span></span><br><span class="line"><span class="attr">    _type:</span> <span class="string">"user"</span></span><br><span class="line"><span class="attr">    _id:</span> <span class="string">"1"</span></span><br><span class="line"><span class="attr">    _score:</span> <span class="number">1.0</span></span><br><span class="line"><span class="attr">    _source:</span></span><br><span class="line"><span class="attr">      name:</span> <span class="string">"silence"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>pretty: 表示在已json格式返回数据时是否以可视化的格式返回, false或未在设置表示不格式化, 否则格式化</p>
+</li>
+<li><p>human: 表示是否对返回结果进行格式化处理，比如3600(s)显示1h</p>
+</li>
+<li><p>查询结果过滤<br>主要使用filter_path参数进行设置</p>
+</li>
+</ul>
+<p>1.在返回结果中我们只关注took, hits.total, hits.hits._id, hits._source, 则我们可以发起如此请求:<br>输入:<code>GET /test1/user/_search?filter_path=took,hits.total,hits.hits._id,hits.hits._source</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">1</span>,</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"total"</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"hits"</span>: [</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"name"</span>: <span class="string">"silence"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>2.也可以使用统配符进行设置<br>输入: <code>GET /_nodes/stats?filter_path=nodes.*.*ost*,nodes.*.os.*u</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"nodes"</span>: &#123;</span><br><span class="line">      <span class="attr">"9jfW4VeWRta-Uq7Cq7bK34"</span>: &#123;</span><br><span class="line">         <span class="attr">"host"</span>: <span class="string">"silence"</span>,</span><br><span class="line">         <span class="attr">"os"</span>: &#123;</span><br><span class="line">            <span class="attr">"cpu"</span>: &#123;</span><br><span class="line">               <span class="attr">"sys"</span>: <span class="number">1</span>,</span><br><span class="line">               <span class="attr">"user"</span>: <span class="number">1</span>,</span><br><span class="line">               <span class="attr">"idle"</span>: <span class="number">96</span>,</span><br><span class="line">               <span class="attr">"usage"</span>: <span class="number">2</span>,</span><br><span class="line">               <span class="attr">"stolen"</span>: <span class="number">0</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>3.若层级较多时可使用**进行简化<br>输入: <code>GET /_nodes/stats?filter_path=nodes.**.*sys*</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"nodes"</span>: &#123;</span><br><span class="line">      <span class="attr">"9jfW4VeWRta-Uq7Cq7bK34"</span>: &#123;</span><br><span class="line">         <span class="attr">"os"</span>: &#123;</span><br><span class="line">            <span class="attr">"cpu"</span>: &#123;</span><br><span class="line">               <span class="attr">"sys"</span>: <span class="number">2</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         <span class="attr">"process"</span>: &#123;</span><br><span class="line">            <span class="attr">"cpu"</span>: &#123;</span><br><span class="line">               <span class="attr">"sys_in_millis"</span>: <span class="number">139106</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>4.若只需要_source中的某些值，则可以将filter_path和_source参数共同使用<br>输入: <code>GET /test1/account/_search?filter_path=hits.hits._source&amp;_source=firstname,lastname,gender&amp;size=2</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"hits"</span>: &#123;</span><br><span class="line">      <span class="attr">"hits"</span>: [</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"firstname"</span>: <span class="string">"Rodriquez"</span>,</span><br><span class="line">               <span class="attr">"gender"</span>: <span class="string">"F"</span>,</span><br><span class="line">               <span class="attr">"lastname"</span>: <span class="string">"Flores"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">               <span class="attr">"firstname"</span>: <span class="string">"Opal"</span>,</span><br><span class="line">               <span class="attr">"gender"</span>: <span class="string">"M"</span>,</span><br><span class="line">               <span class="attr">"lastname"</span>: <span class="string">"Meadows"</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>5.flat_settings用于设置在查询setting时,setting中的key格式, 默认为false:<br>输入: <code>GET /test1/_settings?flat_settings=true</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"test1"</span>: &#123;</span><br><span class="line">      <span class="attr">"settings"</span>: &#123;</span><br><span class="line">         <span class="attr">"index.creation_date"</span>: <span class="string">"1442230557598"</span>,</span><br><span class="line">         <span class="attr">"index.uuid"</span>: <span class="string">"70bg061IRdKUdDNvgkUBoQ"</span>,</span><br><span class="line">         <span class="attr">"index.version.created"</span>: <span class="string">"1060099"</span>,</span><br><span class="line">         <span class="attr">"index.number_of_replicas"</span>: <span class="string">"1"</span>,</span><br><span class="line">         <span class="attr">"index.number_of_shards"</span>: <span class="string">"5"</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输入: <code>GET /test1/_settings?flat_settings=false</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"test1"</span>: &#123;</span><br><span class="line">      <span class="attr">"settings"</span>: &#123;</span><br><span class="line">         <span class="attr">"index"</span>: &#123;</span><br><span class="line">            <span class="attr">"creation_date"</span>: <span class="string">"1442230557598"</span>,</span><br><span class="line">            <span class="attr">"number_of_shards"</span>: <span class="string">"5"</span>,</span><br><span class="line">            <span class="attr">"uuid"</span>: <span class="string">"70bg061IRdKUdDNvgkUBoQ"</span>,</span><br><span class="line">            <span class="attr">"version"</span>: &#123;</span><br><span class="line">               <span class="attr">"created"</span>: <span class="string">"1060099"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"number_of_replicas"</span>: <span class="string">"1"</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>请求参数格式<br>1.boolean: 在es中将”0”, 0, false, “false”, “off”识别为false，其他均按ture处理<br>2.number<br>3.time: 可以提交一个以毫秒时间的整数或者以日期标识结尾的字符串，例如”2d”表示2天，支持的格式有: y(year),M(month),w(week),d(day),h(hour),m(minute),s(second)<br>4.距离: 可以提交一个以米为单位的证书或者以距离表示结尾的字符串，例如”2km”表示2千米，支持的格式有: mi/miles(mile英里), yd/yards(yard码), ft/feet(feet尺), in/inch(inch英寸), km/kilometers(kilometer千米), m/meters(meter米), cm/centimeters(centimeter厘米), mm/millimeters(millimeter毫米), NM/nmi/nauticalmiles(Nautical mile纳米)<br>5.模糊类型:<br>  a.数字,时间, IP：类似于range -fuzzines&lt;=value&lt;=+fuzzines<br>  b.字符串: 计算编辑距离</p>
+</li>
+<li><p>返回结果中key的格式为驼峰还是下划线分割, 通过case设置为camelCase则返回驼峰格式，否则为下划线分割形式</p>
+</li>
+<li>jsonp: 可以用jsonp回调的方式调用es api, 需要通过callback设置回调函数名称，并且需要在elasticsearch.yml中配置<code>http.jsonp.enable: true</code>来启用jsonp格式</li>
+</ul>
+<h2 id="url访问控制"><a href="#url访问控制" class="headerlink" title="url访问控制"></a>url访问控制</h2><p>可以通过代理方式进行es的url访问控制，但是对于multi-search，multi-get和bulk等在请求参数中设置不同的index的情况很难解决.<br>为防止通过请求体设置index的情况,需要在elasticsearch.yml中设置<code>rest.action.multi.allow_explicit_index:false</code>, 此时es不允许在request body中设置index</p>
+<p>如在修改前：<br>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/user3/_bulk?pretty</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;<span class="string">"_index"</span> : <span class="string">"test2"</span>, <span class="string">"_type"</span> : <span class="string">"user1"</span>, <span class="string">"_id"</span> : <span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence1"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;<span class="string">"_index"</span> : <span class="string">"test2"</span>, <span class="string">"_type"</span> : <span class="string">"user1"</span>, <span class="string">"_id"</span> : <span class="number">2</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence2"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">225</span>,</span><br><span class="line">   <span class="attr">"errors"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"items"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"index"</span>: &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test2"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"user1"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="attr">"_version"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"status"</span>: <span class="number">201</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"index"</span>: &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test2"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"user1"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"2"</span>,</span><br><span class="line">            <span class="attr">"_version"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"status"</span>: <span class="number">201</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如在修改后(已重启)：<br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"error"</span>: <span class="string">"IllegalArgumentException[explicit index in bulk is not allowed]"</span>,</span><br><span class="line">   <span class="attr">"status"</span>: <span class="number">500</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /test1/user3/_bulk?pretty</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;<span class="string">"_id"</span> : <span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence1"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span> : &#123;<span class="string">"_id"</span> : <span class="number">2</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span> : <span class="string">"silence2"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"took"</span>: <span class="number">8</span>,</span><br><span class="line">   <span class="attr">"errors"</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="attr">"items"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"index"</span>: &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"user3"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="attr">"_version"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"status"</span>: <span class="number">201</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"index"</span>: &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"test1"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"user3"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"2"</span>,</span><br><span class="line">            <span class="attr">"_version"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">"status"</span>: <span class="number">201</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag">#elasticsearch</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/17/elasticsearch/elasticsearch_05/" rel="prev">elasticsearch 第五篇(文档操作接口)</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/16/elasticsearch/elasticsearch_max_open_files/" rel="next">记一次修改elasticsearch文件描述符数量</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/09/16/elasticsearch/elasticsearch_04/"
+     data-title="elasticsearch 第四篇(API约定)"
+     data-content=""
+     data-url="http://imsilence.github.io/2015/09/16/elasticsearch/elasticsearch_04/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+            </div>
+
+            
+
+            
+              <div class="comments" id="comments">
+                
+                  <div class="ds-thread" data-thread-key="2015/09/16/elasticsearch/elasticsearch_04/"
+                       data-title="elasticsearch 第四篇(API约定)" data-url="http://imsilence.github.io/2015/09/16/elasticsearch/elasticsearch_04/">
+                  </div>
+                
+              </div>
+            
+        </div>
+
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Silence" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Silence</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">少年经不得顺境,中年经不得闲境,晚年经不得逆境</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/imsilence" target="_blank">GitHub</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#对多个indices进行操作"><span class="nav-number">1.</span> <span class="nav-text">对多个indices进行操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#公共参数"><span class="nav-number">2.</span> <span class="nav-text">公共参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#url访问控制"><span class="nav-number">3.</span> <span class="nav-text">url访问控制</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+        <div class="footer-inner">
+            <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silence</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+</div>
+
+<script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"imsilence"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.4"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.4"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.4" id="motion.global"></script>
+
+
+
+  <script type="text/javascript" src="/js/search-toggle.js"></script>
+
+
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.4" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if (isDesktop() && CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    });
+  </script>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (CONFIG.sidebar === 'always') {
+            displaySidebar();
+        }
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+
+
+
+
+
+<!-- lazyload -->
+<script type="text/javascript" src="/js/lazyload.js"></script>
+<script type="text/javascript">
+    jQuery(function () {
+        jQuery("#posts img").lazyload({
+            placeholder: "/images/loading.gif",
+            effect: "fadeIn"
+        });
+    });
+</script>
+</body>
+</html>

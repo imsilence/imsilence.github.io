@@ -1,0 +1,803 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+    
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.4"/>
+
+
+    <meta name="description" content="少年经不得顺境,中年经不得闲境,晚年经不得逆境" />
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.4" />
+
+
+<meta name="description" content="配置在es启动之前可以通过设置启动命令行启动参数、环境变量、文件等方式优化和配置es进行参数
+环境变量
+
+
+名称
+示例
+说明
+
+
+
+
+ES_MIN_MEM
+256M
+用于配置java进程分配的最小内存
+
+
+ES_MAX_MEM
+1G
+用于配置java进程占用的最大内存
+
+
+ES_HEAP_SIZE
+32G
+设置ES_MIN_MEM,ES_MAX_MEM使用相同大小,ES推荐该配置并启用mlocka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elasticsearch 第二篇(配置篇)">
+<meta property="og:url" content="http://imsilence.github.io/2015/09/15/elasticsearch/elasticsearch_02/index.html">
+<meta property="og:site_name" content="Silence's Blogs">
+<meta property="og:description" content="配置在es启动之前可以通过设置启动命令行启动参数、环境变量、文件等方式优化和配置es进行参数
+环境变量
+
+
+名称
+示例
+说明
+
+
+
+
+ES_MIN_MEM
+256M
+用于配置java进程分配的最小内存
+
+
+ES_MAX_MEM
+1G
+用于配置java进程占用的最大内存
+
+
+ES_HEAP_SIZE
+32G
+设置ES_MIN_MEM,ES_MAX_MEM使用相同大小,ES推荐该配置并启用mlocka">
+<meta property="og:updated_time" content="2016-05-28T05:41:06.710Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="elasticsearch 第二篇(配置篇)">
+<meta name="twitter:description" content="配置在es启动之前可以通过设置启动命令行启动参数、环境变量、文件等方式优化和配置es进行参数
+环境变量
+
+
+名称
+示例
+说明
+
+
+
+
+ES_MIN_MEM
+256M
+用于配置java进程分配的最小内存
+
+
+ES_MAX_MEM
+1G
+用于配置java进程占用的最大内存
+
+
+ES_HEAP_SIZE
+32G
+设置ES_MIN_MEM,ES_MAX_MEM使用相同大小,ES推荐该配置并启用mlocka">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide'
+  };
+</script>
+
+    <title> elasticsearch 第二篇(配置篇) // Silence's Blogs </title>
+</head>
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?d76d6abdbe271d3cca4ddb8f5649243c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+<div class="container one-column page-post-detail">
+    <div class="headband"></div>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-logo"></i>
+      </span>
+      <span class="site-title">Silence's Blogs</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+<form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'YGzc19xtW4Xs6NWUE3qA','2.0.0');
+</script>
+
+<div class="site-search-toggle"></div>
+    </div>
+  
+</nav>
+
+
+        </div>
+    </header>
+
+    <main id="main" class="main">
+        <div class="main-inner">
+            <div id="content" class="content">
+                
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              elasticsearch 第二篇(配置篇)
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-09-15T13:55:21+08:00" content="2015-09-15">
+            2015-09-15
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing"><a href="/categories/存储/" itemprop="url" rel="index"><span itemprop="name">存储</span></a></span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/09/15/elasticsearch/elasticsearch_02/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/15/elasticsearch/elasticsearch_02/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>在es启动之前可以通过设置启动命令行启动参数、环境变量、文件等方式优化和配置es进行参数</p>
+<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ES_MIN_MEM</td>
+<td>256M</td>
+<td>用于配置java进程分配的最小内存</td>
+</tr>
+<tr>
+<td>ES_MAX_MEM</td>
+<td>1G</td>
+<td>用于配置java进程占用的最大内存</td>
+</tr>
+<tr>
+<td>ES_HEAP_SIZE</td>
+<td>32G</td>
+<td>设置ES_MIN_MEM,ES_MAX_MEM使用相同大小,ES推荐该配置并启用mlockall</td>
+</tr>
+<tr>
+<td>ES_DIRECT_SIZE</td>
+<td>2G</td>
+<td>直接内存并不是虚拟机运行时数据区的一部分,在nio中引入了基于通道和缓冲区的I/O方式,它可以使用native函数直接分配堆外内存,然后通过存储在java堆中的DirectByteBuffer对象作为这块内存的引用进行操作</td>
+</tr>
+<tr>
+<td>ES_USE_IPV4</td>
+<td>not empty/empty</td>
+<td>表示只使用IPV4, 若定义且值不为空则表示true</td>
+</tr>
+</tbody>
+</table>
+<h2 id="系统配置"><a href="#系统配置" class="headerlink" title="系统配置"></a>系统配置</h2><ul>
+<li>设置系统允许打开的文件描述符数量，建议设置为32k或64k, 可通过命令ulimit -n进行查询，示例:<code>ulimit -n 65535</code>后重启服务<br>可以在启动时添加参数-Des.max-open-files=true查看允许打开的文件描述符数量</li>
+</ul>
+<p>也可以通过RESTAPI查看nodes信息，输入:<code>GET /_nodes/process?pretty</code><br>输出:<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="attr">"cluster_name"</span>: <span class="string">"elasticsearch"</span>,</span><br><span class="line">   <span class="attr">"nodes"</span>: &#123;</span><br><span class="line">      <span class="attr">"eE4eHSOWTK-j6IO7JJzcDQ"</span>: &#123;</span><br><span class="line">         <span class="attr">"name"</span>: <span class="string">"Specialist"</span>,</span><br><span class="line">         <span class="attr">"transport_address"</span>: <span class="string">"inet[silence/192.168.1.111:9300]"</span>,</span><br><span class="line">         <span class="attr">"host"</span>: <span class="string">"silence"</span>,</span><br><span class="line">         <span class="attr">"ip"</span>: <span class="string">"192.168.1.111"</span>,</span><br><span class="line">         <span class="attr">"version"</span>: <span class="string">"1.6.0"</span>,</span><br><span class="line">         <span class="attr">"build"</span>: <span class="string">"cdd3ac4"</span>,</span><br><span class="line">         <span class="attr">"http_address"</span>: <span class="string">"inet[/192.168.1.111:9200]"</span>,</span><br><span class="line">         <span class="attr">"process"</span>: &#123;</span><br><span class="line">            <span class="attr">"refresh_interval_in_millis"</span>: <span class="number">1000</span>,</span><br><span class="line">            <span class="attr">"id"</span>: <span class="number">6212</span>,</span><br><span class="line">            <span class="attr">"max_file_descriptors"</span>: <span class="number">-1</span>,</span><br><span class="line">            <span class="attr">"mlockall"</span>: <span class="literal">false</span></span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="虚拟内存设置"><a href="#虚拟内存设置" class="headerlink" title="虚拟内存设置"></a>虚拟内存设置</h2><p>es采用混合的mmapfs/niofs目录默认存储索引，在mmap计数太低时可能导致存储器异常，可通过sysctl vm.max_map_count查询，需要设置使用命令<code>sysctl -w vm.max_map_count=262144</code>或者在/etc/sysctl.conf中进行永久设置</p>
+<h2 id="内存设置"><a href="#内存设置" class="headerlink" title="内存设置"></a>内存设置</h2><p>在操作系统为尽量多的使用内存，会将不用的应用程序内存换出存储在swap文件系统中，交换会降低系统的性能和节点的稳定性，需要禁止，可通过三种方法进行设置：</p>
+<ul>
+<li><p>禁用swap分区<br>在linux中可通过<code>swapoff -a</code>或在/etc/fstab中注释所有行中swap的内容<br>在windows中在”系统属性”-&gt;”高级”-&gt;”性能”-&gt;”高级”-&gt;”虚拟内存”中设置</p>
+</li>
+<li><p>配置swappiness<br>通过sysctl vim.swappiness=0减少内核进行的swap交换</p>
+</li>
+<li><p>mlockall<br>在*nux上使用mlockall或者在window上使用VirtualLocx尽量锁定进程的地址空间到RAM，防止es内存被换出，可通过elasticsearch.yml进行配置<br>在es配置文件中添加:<code>bootstrap.mlockall: true</code>并重启服务即可</p>
+</li>
+</ul>
+<p>通过RESTAPI查看nodes信息，输入:<code>GET /_nodes/process?pretty</code></p>
+<p>在*nux系统下可能有两个原因导致mlockall设置失败：<br>1.es进程所属用户不具有锁定内存的权限，需要使用ulimit -l进行设置<br>2./tmp目录设置了noexec选项，可通过在启动es时设置-Djna.tmpdir=/path/to/new/dir解决</p>
+<h1 id="es配置"><a href="#es配置" class="headerlink" title="es配置"></a>es配置</h1><p>在ES_HOME/conf目录下两个配置文件分别为elasticsearch.yml和logging.yml, elasticsearch.yml为es所有模块提供配置, logging.yml为日志记录提供配置</p>
+<ul>
+<li>elasticsearch.yum解读</li>
+</ul>
+<p>1.network设置<br>network.host: 设置bind host和publish<br>2.path设置<br>path.logs: 设置日志存储目录<br>path.data: 设置数据存储目录<br>3.cluster设置<br>cluster.name: 设置集群标识<br>4.node设置<br>node.name: 设置节点标识<br>5.index设置<br>es支持创建存储到内存中的索引，可以在创建索引或者在进程启动时指定默认存储方式<br>a.在yum配置文件中配置index.store.type:memory<br>b.在es进程启动时通过参数-Des.index.store.type=memory设置<br>c.在创建index时通过参数提交，输入:<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PUT http://localhost:<span class="number">9200</span>/m_index_test2/</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"index"</span> :&#123;</span><br><span class="line">      <span class="string">"store"</span>: &#123;</span><br><span class="line">        <span class="string">"type"</span>: <span class="string">"memory"</span></span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说明：存储在内存中的索引在重启服务器后数据会丢失</p>
+<p>6.在yum配置文件中可设置为环境变量的引用，比如在环境变量中定义节点的名称ES_NODE_NAME, 则可在yum配置文件中设置node.name=${ES_NODE_NAME}<br>7.可在es进程启动时通过进程启动参数进行设置,如-Des.node.name=silence<br>8.可以在es进程启动时通过-Des.config=/path/to/config/file重新指定config文件</p>
+<ul>
+<li>logging.yum配置可参考<a href="http://logging.apache.org/log4j/1.2/manual.html" title="log4j" target="_blank" rel="external">log4j</a></li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag">#elasticsearch</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/15/elasticsearch/elasticsearch_03/" rel="prev">elasticsearch 第三篇(安装篇)</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/14/elasticsearch/elasticsearch_01/" rel="next">elasticsearch 第一篇(入门篇)</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/09/15/elasticsearch/elasticsearch_02/"
+     data-title="elasticsearch 第二篇(配置篇)"
+     data-content=""
+     data-url="http://imsilence.github.io/2015/09/15/elasticsearch/elasticsearch_02/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+            </div>
+
+            
+
+            
+              <div class="comments" id="comments">
+                
+                  <div class="ds-thread" data-thread-key="2015/09/15/elasticsearch/elasticsearch_02/"
+                       data-title="elasticsearch 第二篇(配置篇)" data-url="http://imsilence.github.io/2015/09/15/elasticsearch/elasticsearch_02/">
+                  </div>
+                
+              </div>
+            
+        </div>
+
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Silence" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Silence</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">少年经不得顺境,中年经不得闲境,晚年经不得逆境</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">39</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/imsilence" target="_blank">GitHub</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#配置"><span class="nav-number">1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#环境变量"><span class="nav-number">2.</span> <span class="nav-text">环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#系统配置"><span class="nav-number">3.</span> <span class="nav-text">系统配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#虚拟内存设置"><span class="nav-number">4.</span> <span class="nav-text">虚拟内存设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存设置"><span class="nav-number">5.</span> <span class="nav-text">内存设置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#es配置"><span class="nav-number"></span> <span class="nav-text">es配置</span></a></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+        <div class="footer-inner">
+            <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silence</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+</div>
+
+<script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"imsilence"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.4"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.4"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.4" id="motion.global"></script>
+
+
+
+  <script type="text/javascript" src="/js/search-toggle.js"></script>
+
+
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.4" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if (isDesktop() && CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    });
+  </script>
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (CONFIG.sidebar === 'always') {
+            displaySidebar();
+        }
+    });
+</script>
+
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+
+
+
+
+
+<!-- lazyload -->
+<script type="text/javascript" src="/js/lazyload.js"></script>
+<script type="text/javascript">
+    jQuery(function () {
+        jQuery("#posts img").lazyload({
+            placeholder: "/images/loading.gif",
+            effect: "fadeIn"
+        });
+    });
+</script>
+</body>
+</html>
